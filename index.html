@@ -1,1173 +1,255 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPLTV QUEST: The Mystery of Metro City!</title>
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- MathJax -->
-    <script>
-        window.MathJax = {
-            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
-            svg: { fontCache: 'global' }
-        };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <!-- Canvas Confetti -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-    <style>
-        :root {
-            --bg-dark: #0F172A;
-            --bg-card: rgba(30, 41, 59, 0.75);
-            --bg-card-border: rgba(255, 255, 255, 0.1);
-            --primary-blue: #3B82F6;
-            --primary-blue-glow: rgba(59, 130, 246, 0.4);
-            --secondary-purple: #A855F7;
-            --secondary-purple-glow: rgba(168, 85, 247, 0.4);
-            --accent-cyan: #06B6D4;
-            --accent-cyan-glow: rgba(6, 182, 212, 0.4);
-            --accent-amber: #F59E0B;
-            --text-light: #F8FAFC;
-            --text-muted: #94A3B8;
-            --sidebar-width: 280px;
-            --header-height: 70px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(at 10% 10%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-                radial-gradient(at 90% 90%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
-                radial-gradient(at 50% 50%, rgba(6, 182, 212, 0.05) 0px, transparent 50%);
-            background-attachment: fixed;
-            color: var(--text-light);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-dark); }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary-blue); }
-
-        /* Typography */
-        h1, h2, h3, h4, .brand-font {
-            font-family: 'Space Grotesk', sans-serif;
-            letter-spacing: -0.02em;
-        }
-
-        /* Glassmorphism Styles */
-        .glass-panel {
-            background: var(--bg-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--bg-card-border);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .glass-card:hover {
-            transform: translateY(-4px);
-            border-color: rgba(59, 130, 246, 0.4);
-            box-shadow: 0 12px 24px -10px var(--primary-blue-glow);
-        }
-
-        /* Buttons & Inputs */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            border: none;
-            transition: all 0.25s ease;
-            text-decoration: none;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-blue), #2563EB);
-            color: #fff;
-            box-shadow: 0 4px 14px var(--primary-blue-glow);
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px var(--primary-blue-glow);
-            filter: brightness(1.1);
-        }
-        .btn-purple {
-            background: linear-gradient(135deg, var(--secondary-purple), #9333EA);
-            color: #fff;
-            box-shadow: 0 4px 14px var(--secondary-purple-glow);
-        }
-        .btn-purple:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px var(--secondary-purple-glow);
-        }
-        .btn-amber {
-            background: linear-gradient(135deg, var(--accent-amber), #D97706);
-            color: #000;
-        }
-        .btn-outline {
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: var(--text-light);
-        }
-        .btn-outline:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--primary-blue);
-            color: var(--primary-blue);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 10px;
-            color: var(--text-light);
-            font-size: 0.95rem;
-            outline: none;
-            transition: border 0.3s ease;
-        }
-        .form-control:focus {
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 0 3px var(--accent-cyan-glow);
-        }
-
-        /* Layout Structure */
-        #app-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar Nav */
-        .sidebar {
-            width: var(--sidebar-width);
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid var(--bg-card-border);
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar-brand {
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid var(--bg-card-border);
-        }
-        .brand-icon {
-            width: 42px;
-            height: 42px;
-            background: linear-gradient(135deg, var(--secondary-purple), var(--primary-blue));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            color: #fff;
-        }
-
-        .nav-menu {
-            list-style: none;
-            padding: 16px 12px;
-            overflow-y: auto;
-            flex-grow: 1;
-        }
-        .nav-item { margin-bottom: 4px; }
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 16px;
-            color: var(--text-muted);
-            border-radius: 12px;
-            font-weight: 500;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-        }
-        .nav-link:hover {
-            color: var(--text-light);
-            background: rgba(255, 255, 255, 0.05);
-        }
-        .nav-link.active {
-            color: #fff;
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.2), transparent);
-            border-left: 4px solid var(--primary-blue);
-        }
-        .nav-link i { font-size: 1.1rem; width: 22px; text-align: center; }
-
-        /* Main Content Area */
-        .main-wrapper {
-            margin-left: var(--sidebar-width);
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            width: calc(100% - var(--sidebar-width));
-        }
-
-        /* Top Header Bar */
-        .top-header {
-            height: var(--header-height);
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--bg-card-border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 32px;
-            position: sticky;
-            top: 0;
-            z-index: 90;
-        }
-
-        .user-stats-bar {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .stat-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 6px 14px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .mobile-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--text-light);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        /* Content Views */
-        .content-container {
-            padding: 32px;
-            flex-grow: 1;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .view-section {
-            display: none;
-            animation: fadeIn 0.4s ease forwards;
-        }
-        .view-section.active { display: block; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Welcome Landing Modal */
-        #welcome-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(20px);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .badge {
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-        .badge-blue { background: rgba(59, 130, 246, 0.2); color: var(--primary-blue); border: 1px solid var(--primary-blue); }
-        .badge-purple { background: rgba(168, 85, 247, 0.2); color: var(--secondary-purple); border: 1px solid var(--secondary-purple); }
-        .badge-cyan { background: rgba(6, 182, 212, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
-        .badge-amber { background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
-
-        .progress-bar-container {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-blue), var(--secondary-purple));
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-
-        /* Matrix Style Grid Inputs for Solver */
-        .matrix-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            background: rgba(0,0,0,0.3);
-            padding: 16px;
-            border-radius: 12px;
-        }
-
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.mobile-open { transform: translateX(0); }
-            .main-wrapper { margin-left: 0; width: 100%; }
-            .mobile-toggle { display: block; }
-            .top-header { padding: 0 16px; }
-            .content-container { padding: 16px; }
-            .matrix-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        @media print {
-            .sidebar, .top-header, .mobile-toggle, .btn, .no-print { display: none !important; }
-            .main-wrapper { margin-left: 0 !important; width: 100% !important; }
-            body { background: #fff !important; color: #000 !important; }
-            .glass-panel, .glass-card { background: #fff !important; color: #000 !important; border: 1px solid #ccc !important; box-shadow: none !important; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- WELCOME LANDING OVERLAY -->
-    <div id="welcome-modal">
-        <div class="glass-panel" style="max-width: 650px; width: 100%; padding: 40px; text-align: center; border: 1px solid var(--primary-blue);">
-            <div style="font-size: 3.5rem; color: var(--secondary-purple); margin-bottom: 10px;">
-                <i class="fa-solid fa-cube"></i>
-            </div>
-            <h1 style="font-size: 2.2rem; margin-bottom: 5px;" class="brand-font">SPLTV QUEST</h1>
-            <p style="color: var(--accent-cyan); font-weight: 700; letter-spacing: 2px; margin-bottom: 20px;">THE MYSTERY OF METRO CITY!</p>
-            
-            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px;">
-                Selamat datang di Media Pembelajaran Matematika Interaktif Kelas X SMA! Bantu Agen Matematika memecahkan rahasia harga bahan pokok, paket cafe kekinian, hingga alokasi nutrisi menggunakan <b>Sistem Persamaan Linear Tiga Variabel (SPLTV)</b>.
-            </p>
-
-            <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 12px; margin-bottom: 30px; text-align: left; font-size: 0.85rem;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span style="color: var(--text-muted);">Mata Pelajaran:</span>
-                    <span>Matematika (Kurikulum Merdeka)</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span style="color: var(--text-muted);">Target Siswa:</span>
-                    <span>Kelas X SMA / MA</span>
-                </div>
-                <div style="display:flex; justify-content:space-between;">
-                    <span style="color: var(--text-muted);">Guru Mata Pelajaran:</span>
-                    <span style="color: var(--accent-amber); font-weight:700;">FAISOL</span>
-                </div>
-            </div>
-
-            <button class="btn btn-primary" style="width: 100%; padding: 16px; font-size: 1.1rem;" onclick="app.startQuest()">
-                <i class="fa-solid fa-magnifying-glass"></i> MULAI INVESTIGASI DETEKTIF
-            </button>
-        </div>
-    </div>
-
-    <!-- MAIN APP CONTAINER -->
-    <div id="app-container">
-
-        <!-- SIDEBAR NAVIGATION -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-brand">
-                <div class="brand-icon"><i class="fa-solid fa-cubes"></i></div>
-                <div>
-                    <h3 style="font-size: 1.1rem; line-height: 1.2;">SPLTV QUEST</h3>
-                    <span style="font-size: 0.7rem; color: var(--accent-cyan); font-weight: 600;">CLASS X MATH</span>
-                </div>
-            </div>
-
-            <ul class="nav-menu">
-                <li class="nav-item">
-                    <a class="nav-link active" onclick="app.navigate('dashboard')">
-                        <i class="fa-solid fa-compass"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" onclick="app.navigate('concept')">
-                        <i class="fa-solid fa-book-open"></i> Konsep & Pemodelan
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" onclick="app.navigate('misi-1')">
-                        <i class="fa-solid fa-store"></i> Misi 1: Paket Boba & Cafe
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" onclick="app.navigate('misi-2')">
-                        <i class="fa-solid fa-ticket"></i> Misi 2: Tiket Konser Music
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" onclick="app.navigate('misi-3')">
-                        <i class="fa-solid fa-utensils"></i> Misi 3: Gizi & Nutrisi Atlet
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" onclick="app.navigate('solver')">
-                        <i class="fa-solid fa-calculator"></i> Matrix & SPLTV Solver
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" onclick="app.navigate('boss-challenge')">
-                        <i class="fa-solid fa-trophy"></i> Boss Challenge (20 Soal)
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" onclick="app.navigate('achievements')">
-                        <i class="fa-solid fa-medal"></i> Badges & XP
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" onclick="app.navigate('summary')">
-                        <i class="fa-solid fa-file-lines"></i> Rangkuman Metode
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" onclick="app.navigate('about')">
-                        <i class="fa-solid fa-circle-info"></i> Info Guru & Modul
-                    </a>
-                </li>
-            </ul>
-
-            <div style="padding: 16px; border-top: 1px solid var(--bg-card-border); font-size: 0.75rem; color: var(--text-muted); text-align: center;">
-                Disusun oleh Guru: <br><strong style="color: var(--text-light);">FAISOL</strong>
-            </div>
-        </aside>
-
-        <!-- MAIN WRAPPER -->
-        <div class="main-wrapper">
-            <!-- TOP HEADER -->
-            <header class="top-header">
-                <button class="mobile-toggle" onclick="app.toggleSidebar()">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-
-                <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-light);" id="header-page-title">
-                    Markas Komando Detektif
-                </div>
-
-                <div class="user-stats-bar">
-                    <div class="stat-badge" style="border-color: var(--accent-amber);">
-                        <i class="fa-solid fa-bolt" style="color: var(--accent-amber);"></i>
-                        <span id="user-xp">0 XP</span>
-                    </div>
-                    <div class="stat-badge" style="border-color: var(--secondary-purple);">
-                        <i class="fa-solid fa-award" style="color: var(--secondary-purple);"></i>
-                        <span id="user-level">Lvl 1 Novice</span>
-                    </div>
-                </div>
-            </header>
-
-            <!-- CONTENT CONTAINER -->
-            <main class="content-container">
-
-                <!-- 1. DASHBOARD VIEW -->
-                <section id="view-dashboard" class="view-section active">
-                    <div class="glass-panel" style="padding: 24px; margin-bottom: 24px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(168, 85, 247, 0.1));">
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-                            <div>
-                                <h2 style="font-size: 1.8rem;" class="brand-font">Selamat Datang, Detektif Matematika! 🕵️‍♂️</h2>
-                                <p style="color: var(--text-muted); margin-top: 4px;">Pecahkan misteri variabel $x, y, z$ yang tersembunyi di kota Metro City!</p>
-                            </div>
-                            <div style="display: flex; gap: 12px;">
-                                <button class="btn btn-outline" onclick="app.resetProgress()"><i class="fa-solid fa-rotate"></i> Reset Progress</button>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-top: 20px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
-                                <span>Progress Penyelidikan Kasus (Misi)</span>
-                                <span id="overall-progress-text">0% Selesai</span>
-                            </div>
-                            <div class="progress-bar-container">
-                                <div class="progress-bar-fill" id="overall-progress-bar"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- MISSION CARDS GRID -->
-                    <h3 style="margin-bottom: 16px;"><i class="fa-solid fa-map-location-dot" style="color: var(--accent-cyan);"></i> Kasus Penyelidikan Aktif</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 32px;">
-                        
-                        <!-- Card 1 -->
-                        <div class="glass-panel glass-card" style="padding: 24px;">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                                <span class="badge badge-blue">KASUS 01</span>
-                                <i class="fa-solid fa-mug-hot" style="font-size: 1.5rem; color: var(--primary-blue);"></i>
-                            </div>
-                            <h4>Misi 1: Rahasia Harga Paket Cafe</h4>
-                            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 10px 0 20px 0; line-height: 1.5;">
-                                Tiga kelompok siswa membeli kombinasi Boba, Toast, dan Waffle tanpa struk rinci. Cari harga satuan masing-masing!
-                            </p>
-                            <button class="btn btn-primary" style="width: 100%;" onclick="app.navigate('misi-1')">
-                                Investigasi Kasus <i class="fa-solid fa-arrow-right"></i>
-                            </button>
-                        </div>
-
-                        <!-- Card 2 -->
-                        <div class="glass-panel glass-card" style="padding: 24px;">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                                <span class="badge badge-purple">KASUS 02</span>
-                                <i class="fa-solid fa-ticket" style="font-size: 1.5rem; color: var(--secondary-purple);"></i>
-                            </div>
-                            <h4>Misi 2: Tiket Konser Musik Festival</h4>
-                            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 10px 0 20px 0; line-height: 1.5;">
-                                Analisis penjualan tiket VIP, Festival, dan Reguler untuk menghitung total pendapatan panitia acara.
-                            </p>
-                            <button class="btn btn-purple" style="width: 100%;" onclick="app.navigate('misi-2')">
-                                Investigasi Kasus <i class="fa-solid fa-arrow-right"></i>
-                            </button>
-                        </div>
-
-                        <!-- Card 3 -->
-                        <div class="glass-panel glass-card" style="padding: 24px;">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                                <span class="badge badge-cyan">KASUS 03</span>
-                                <i class="fa-solid fa-dumbbell" style="font-size: 1.5rem; color: var(--accent-cyan);"></i>
-                            </div>
-                            <h4>Misi 3: Formulasi Nutrisi Atlet</h4>
-                            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 10px 0 20px 0; line-height: 1.5;">
-                                Hitung porsi gram Protein, Karbohidrat, dan Lemak agar kebutuhan gizi harian atlet terpenuhi presisi.
-                            </p>
-                            <button class="btn btn-outline" style="width: 100%; border-color: var(--accent-cyan); color: var(--accent-cyan);" onclick="app.navigate('misi-3')">
-                                Investigasi Kasus <i class="fa-solid fa-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 2. CONCEPT & MODELING VIEW -->
-                <section id="view-concept" class="view-section">
-                    <div class="glass-panel" style="padding: 32px; margin-bottom: 24px;">
-                        <h2 class="brand-font" style="color: var(--primary-blue);"><i class="fa-solid fa-brain"></i> Konsep Dasar & Pemodelan SPLTV</h2>
-                        <p style="margin-top: 10px; color: var(--text-muted); line-height: 1.6;">
-                            Sistem Persamaan Linear Tiga Variabel (SPLTV) adalah kumpulan tiga persamaan linear yang masing-masing memiliki tiga variabel bebas (biasanya disimbolkan $x, y, z$).
-                        </p>
-
-                        <!-- Bentuk Umum -->
-                        <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; margin: 20px 0;">
-                            $$\begin{cases} a_1 x + b_1 y + c_1 z = d_1 \\ a_2 x + b_2 y + c_2 z = d_2 \\ a_3 x + b_3 y + c_3 z = d_3 \end{cases}$$
-                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 10px;">
-                                <b>Keterangan:</b> $x, y, z$ adalah variabel yang dicari; $a, b, c$ adalah koefisien; $d$ adalah konstanta hasil.
-                            </div>
-                        </div>
-
-                        <h3><i class="fa-solid fa-list-check"></i> 3 Metode Utama Penyelesaian:</h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 16px; margin-bottom: 30px;">
-                            <div class="glass-card" style="padding: 16px;">
-                                <h4 style="color: var(--accent-cyan);">1. Metode Eliminasi</h4>
-                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Menghilangkan salah satu variabel secara bertahap dari dua pasangan persamaan hingga tersisa 1 variabel.</p>
-                            </div>
-                            <div class="glass-card" style="padding: 16px;">
-                                <h4 style="color: var(--secondary-purple);">2. Metode Substitusi</h4>
-                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Mengubah satu persamaan menjadi bentuk $x = \dots$ lalu menggantikannya ke persamaan lainnya.</p>
-                            </div>
-                            <div class="glass-card" style="padding: 16px;">
-                                <h4 style="color: var(--accent-amber);">3. Metode Determinan (Cramer)</h4>
-                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Menggunakan matriks 3x3: $x = D_x/D$, $y = D_y/D$, $z = D_z/D$. Sangat sistematis dan minim keliruan tanda!</p>
-                            </div>
-                        </div>
-
-                        <!-- KASUS & CONTOH SOAL STEP-BY-STEP DENGAN NOTASI MATEMATIKA -->
-                        <div style="border-top: 1px solid var(--bg-card-border); pt-6; margin-top: 30px; padding-top: 24px;">
-                            <h3 class="brand-font" style="color: var(--accent-cyan); margin-bottom: 16px;">
-                                <i class="fa-solid fa-pen-ruler"></i> Contoh Kasus Kontekstual & Penyelesaian Step-by-Step
-                            </h3>
-
-                            <!-- BOX DESKRIPSI KASUS -->
-                            <div style="background: rgba(6, 182, 212, 0.08); border-left: 4px solid var(--accent-cyan); padding: 20px; border-radius: 12px; margin-bottom: 24px;">
-                                <h4 style="color: var(--text-light); margin-bottom: 8px;"><i class="fa-solid fa-basket-shopping"></i> Kasus: Pembelian Alat Tulis Toko "Pintar"</h4>
-                                <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
-                                    Tiga orang siswa membeli perlengkapan sekolah di toko yang sama:
-                                    <br>• <b>Andi</b> membeli 2 Buku Tulis ($x$), 1 Pensil ($y$), dan 1 Penghapus ($z$) seharga <b>Rp17.000</b>.
-                                    <br>• <b>Budi</b> membeli 1 Buku Tulis ($x$), 2 Pensil ($y$), dan 1 Penghapus ($z$) seharga <b>Rp14.000</b>.
-                                    <br>• <b>Cici</b> membeli 3 Buku Tulis ($x$), 1 Pensil ($y$), dan 2 Penghapus ($z$) seharga <b>Rp25.000</b>.
-                                    <br><br>
-                                    <b style="color: var(--accent-amber);">Pertanyaan:</b> Tentukan harga satuan dari 1 Buku Tulis ($x$), 1 Pensil ($y$), dan 1 Penghapus ($z$)!
-                                </p>
-                            </div>
-
-                            <!-- MODEL MATEMATIKA -->
-                            <div class="glass-card" style="padding: 20px; margin-bottom: 24px;">
-                                <h4 style="color: var(--primary-blue); margin-bottom: 10px;">Langkah 1: Pemodelan Sistem Persamaan</h4>
-                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
-                                    Dari cerita di atas, dapat dirumuskan menjadi SPLTV sebagai berikut:
-                                </p>
-                                <div style="background: rgba(0,0,0,0.4); padding: 16px; border-radius: 10px; font-size: 1.05rem;">
-                                    $$\begin{cases} 
-                                    2x + y + z = 17.000 & \text{--- (Persamaan 1)} \\ 
-                                    x + 2y + z = 14.000 & \text{--- (Persamaan 2)} \\ 
-                                    3x + y + 2z = 25.000 & \text{--- (Persamaan 3)} 
-                                    \end{cases}$$
-                                </div>
-                            </div>
-
-                            <!-- CARA 1: ELIMINASI & SUBSTITUSI -->
-                            <div class="glass-card" style="padding: 20px; margin-bottom: 24px;">
-                                <h4 style="color: var(--secondary-purple); margin-bottom: 12px;">Langkah 2: Penyelesaian Metode Eliminasi - Substitusi</h4>
-                                
-                                <div style="line-height: 1.8; font-size: 0.9rem;">
-                                    <p><b>a. Eliminasi variabel $z$ dari (Persamaan 1) dan (Persamaan 2):</b></p>
-                                    <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin: 8px 0 16px 0;">
-                                        $$\begin{aligned}
-                                        2x + y + z &= 17.000 \\
-                                        x + 2y + z &= 14.000 \\
-                                        \hline
-                                        x - y &= 3.000 \implies x = y + 3.000 \quad \text{--- (Persamaan 4)}
-                                        \end{aligned}$$
-                                    </div>
-
-                                    <p><b>b. Eliminasi variabel $z$ dari (Persamaan 1) dan (Persamaan 3):</b></p>
-                                    <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin: 8px 0 16px 0;">
-                                        $$\begin{aligned}
-                                        (2x + y + z = 17.000) &\times 2 \implies 4x + 2y + 2z = 34.000 \\
-                                        (3x + y + 2z = 25.000) &\times 1 \implies 3x + y + 2z = 25.000 \\
-                                        \hline
-                                        x + y &= 9.000 \quad \text{--- (Persamaan 5)}
-                                        \end{aligned}$$
-                                    </div>
-
-                                    <p><b>c. Substitusi (Persamaan 4) $x = y + 3.000$ ke (Persamaan 5):</b></p>
-                                    <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin: 8px 0 16px 0;">
-                                        $$\begin{aligned}
-                                        (y + 3.000) + y &= 9.000 \\
-                                        2y + 3.000 &= 9.000 \\
-                                        2y &= 6.000 \implies \mathbf{y = 3.000} \text{ (Harga Pensil)}
-                                        \end{aligned}$$
-                                    </div>
-
-                                    <p><b>d. Substitusi nilai $y = 3.000$ untuk mendapatkan $x$ dan $z$:</b></p>
-                                    <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin: 8px 0 0 0;">
-                                        $$\begin{aligned}
-                                        x &= 3.000 + 3.000 = \mathbf{6.000} \text{ (Harga Buku Tulis)} \\
-                                        2(6.000) + 3.000 + z &= 17.000 \implies 15.000 + z = 17.000 \implies \mathbf{z = 2.000} \text{ (Harga Penghapus)}
-                                        \end{aligned}$$
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- CARA 2: METODE DETERMINAN CRAMER -->
-                            <div class="glass-card" style="padding: 20px;">
-                                <h4 style="color: var(--accent-amber); margin-bottom: 12px;">Alternatif: Penyelesaian Metode Determinan Matriks (Aturan Cramer)</h4>
-                                
-                                <div style="font-size: 0.9rem; line-height: 1.8;">
-                                    <p>Hitung Determinan Utama ($D$), $D_x$, $D_y$, dan $D_z$ menggunakan Aturan Sarrus 3x3:</p>
-                                    
-                                    <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin: 10px 0;">
-                                        $$D = \begin{vmatrix} 2 & 1 & 1 \\ 1 & 2 & 1 \\ 3 & 1 & 2 \end{vmatrix} = (2 \cdot 2 \cdot 2 + 1 \cdot 1 \cdot 3 + 1 \cdot 1 \cdot 1) - (1 \cdot 2 \cdot 3 + 2 \cdot 1 \cdot 1 + 1 \cdot 1 \cdot 2) = 12 - 10 = \mathbf{2}$$
-                                    </div>
-
-                                    <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin: 10px 0;">
-                                        $$D_x = \begin{vmatrix} 17.000 & 1 & 1 \\ 14.000 & 2 & 1 \\ 25.000 & 1 & 2 \end{vmatrix} = \mathbf{12.000} \implies x = \frac{D_x}{D} = \frac{12.000}{2} = \mathbf{6.000}$$
-                                    </div>
-
-                                    <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin: 10px 0;">
-                                        $$D_y = \begin{vmatrix} 2 & 17.000 & 1 \\ 1 & 14.000 & 1 \\ 3 & 25.000 & 2 \end{vmatrix} = \mathbf{6.000} \implies y = \frac{D_y}{D} = \frac{6.000}{2} = \mathbf{3.000}$$
-                                    </div>
-
-                                    <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin: 10px 0;">
-                                        $$D_z = \begin{vmatrix} 2 & 1 & 17.000 \\ 1 & 2 & 14.000 \\ 3 & 1 & 25.000 \end{vmatrix} = \mathbf{4.000} \implies z = \frac{D_z}{D} = \frac{4.000}{2} = \mathbf{2.000}$$
-                                    </div>
-
-                                    <!-- KESIMPULAN AKHIR -->
-                                    <div style="background: rgba(59, 130, 246, 0.15); border: 1px solid var(--primary-blue); padding: 14px; border-radius: 10px; margin-top: 16px; text-align: center;">
-                                        <h4 style="color: #fff;">Kesimpulan Hasil Akhir:</h4>
-                                        <p style="color: var(--text-light); margin-top: 4px;">
-                                            • Harga 1 Buku Tulis ($x$) = <b>Rp6.000</b><br>
-                                            • Harga 1 Pensil ($y$) = <b>Rp3.000</b><br>
-                                            • Harga 1 Penghapus ($z$) = <b>Rp2.000</b>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </section>
-
-                <!-- 3. MISI 1: CAFE -->
-                <section id="view-misi-1" class="view-section">
-                    <div class="glass-panel" style="padding: 32px;">
-                        <span class="badge badge-blue">KASUS 01</span>
-                        <h2 class="brand-font" style="margin-top: 8px;">Misteri Struk Belanja Cafe</h2>
-
-                        <div style="background: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--primary-blue); padding: 16px; border-radius: 8px; margin: 20px 0;">
-                            <h4><i class="fa-solid fa-store"></i> Deskripsi Masalah Kasus:</h4>
-                            <p style="font-size: 0.9rem; margin-top: 6px; line-height: 1.5;">
-                                Tiga kelompok siswa nongkrong di "Kopi Kita" dan memesan item berikut:
-                                <br>• Kelompok 1: 2 Boba Milk ($x$), 1 Cheese Toast ($y$), 1 Waffle ($z$) = <b>Rp80.000</b>
-                                <br>• Kelompok 2: 1 Boba Milk ($x$), 2 Cheese Toast ($y$), 1 Waffle ($z$) = <b>Rp75.000</b>
-                                <br>• Kelompok 3: 3 Boba Milk ($x$), 1 Cheese Toast ($y$), 2 Waffle ($z$) = <b>Rp125.000</b>
-                            </p>
-                        </div>
-
-                        <!-- Interaktif Solver Langkah Misi 1 -->
-                        <h3>Uji Hipotesis Harga Satuan:</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Tebak atau hitung berapa harga 1 Boba ($x$), 1 Toast ($y$), dan 1 Waffle ($z$):</p>
-
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-                            <div>
-                                <label style="font-size: 0.85rem; color: var(--text-muted);">Boba Milk (x)</label>
-                                <input type="number" id="guess-m1-x" class="form-control" placeholder="Masukkkan harga x">
-                            </div>
-                            <div>
-                                <label style="font-size: 0.85rem; color: var(--text-muted);">Cheese Toast (y)</label>
-                                <input type="number" id="guess-m1-y" class="form-control" placeholder="Masukkan harga y">
-                            </div>
-                            <div>
-                                <label style="font-size: 0.85rem; color: var(--text-muted);">Waffle (z)</label>
-                                <input type="number" id="guess-m1-z" class="form-control" placeholder="Masukkan harga z">
-                            </div>
-                        </div>
-
-                        <button class="btn btn-primary" style="margin-top: 16px;" onclick="app.checkMisi1()">Verifikasi Jawaban <i class="fa-solid fa-check"></i></button>
-
-                        <div id="m1-feedback" style="margin-top: 16px; display: none;" class="glass-card"></div>
-                    </div>
-                </section>
-
-                <!-- 4. MISI 2: TIKET KONSER -->
-                <section id="view-misi-2" class="view-section">
-                    <div class="glass-panel" style="padding: 32px;">
-                        <span class="badge badge-purple">KASUS 02</span>
-                        <h2 class="brand-font" style="margin-top: 8px;">Penjualan Tiket Konser Music Fest</h2>
-
-                        <div style="background: rgba(168, 85, 247, 0.08); border-left: 4px solid var(--secondary-purple); padding: 16px; border-radius: 8px; margin: 20px 0;">
-                            <h4><i class="fa-solid fa-ticket"></i> Skenario Kasus:</h4>
-                            <p style="font-size: 0.9rem; margin-top: 6px; line-height: 1.5;">
-                                Panitia menjual tiket VIP ($x$), Festival ($y$), dan Reguler ($z$).
-                                <br>1. Total tiket terjual: $x + y + z = 500$ lembar.
-                                <br>2. Jumlah tiket VIP dan Reguler adalah 300 lembar: $x + z = 300$.
-                                <br>3. Hasil penjualan total = Rp75.000.000 dengan harga VIP Rp250rb, Festival Rp150rb, dan Reguler Rp100rb.
-                            </p>
-                        </div>
-
-                        <button class="btn btn-purple" onclick="app.solveMisi2StepByStep()">Buka Pembahasan Langkah Eliminasi <i class="fa-solid fa-key"></i></button>
-
-                        <div id="misi2-steps-box" style="margin-top: 20px; display: none;" class="glass-card">
-                            <!-- Injected JS -->
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 5. MISI 3: NUTRISI -->
-                <section id="view-misi-3" class="view-section">
-                    <div class="glass-panel" style="padding: 32px;">
-                        <span class="badge badge-cyan">KASUS 03</span>
-                        <h2 class="brand-font" style="margin-top: 8px;">Optimasi Menu Nutrisi Atlet</h2>
-                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 6px;">
-                            Pelatih membutuhkan kombinasi Dada Ayam ($x$), Nasi Merah ($y$), dan Telur ($z$) untuk memenuhi target gram Protein, Karbohidrat, dan Lemak.
-                        </p>
-
-                        <div style="margin-top: 20px; height: 300px;">
-                            <canvas id="chartNutrisi"></canvas>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 6. AUTOMATED SOLVER TOOL -->
-                <section id="view-solver" class="view-section">
-                    <div class="glass-panel" style="padding: 32px;">
-                        <h2 class="brand-font" style="color: var(--accent-amber);"><i class="fa-solid fa-calculator"></i> Kalkulator Automatic SPLTV (Metode Cramer Matrix)</h2>
-                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; margin-bottom: 20px;">
-                            Masukkan koefisien dan konstanta persamaanmu untuk menemukan nilai $x, y, z$ secara otomatis beserta nilai Determinan!
-                        </p>
-
-                        <div style="margin-bottom: 12px; font-weight: 600;">Persamaan 1: $a_1 x + b_1 y + c_1 z = d_1$</div>
-                        <div class="matrix-grid">
-                            <input type="number" id="a1" class="form-control" value="2" placeholder="a1">
-                            <input type="number" id="b1" class="form-control" value="1" placeholder="b1">
-                            <input type="number" id="c1" class="form-control" value="1" placeholder="c1">
-                            <input type="number" id="d1" class="form-control" value="80000" placeholder="d1">
-                        </div>
-
-                        <div style="margin: 12px 0 12px 0; font-weight: 600;">Persamaan 2: $a_2 x + b_2 y + c_2 z = d_2$</div>
-                        <div class="matrix-grid">
-                            <input type="number" id="a2" class="form-control" value="1" placeholder="a2">
-                            <input type="number" id="b2" class="form-control" value="2" placeholder="b2">
-                            <input type="number" id="c2" class="form-control" value="1" placeholder="c2">
-                            <input type="number" id="d2" class="form-control" value="75000" placeholder="d2">
-                        </div>
-
-                        <div style="margin: 12px 0 12px 0; font-weight: 600;">Persamaan 3: $a_3 x + b_3 y + c_3 z = d_3$</div>
-                        <div class="matrix-grid">
-                            <input type="number" id="a3" class="form-control" value="3" placeholder="a3">
-                            <input type="number" id="b3" class="form-control" value="1" placeholder="b3">
-                            <input type="number" id="c3" class="form-control" value="2" placeholder="c3">
-                            <input type="number" id="d3" class="form-control" value="125000" placeholder="d3">
-                        </div>
-
-                        <button class="btn btn-amber" style="margin-top: 20px; width: 100%;" onclick="app.solveMatrixCramer()">
-                            HITUNG PENYELESAIAN & DETERMINAN MATRIKS <i class="fa-solid fa-bolt"></i>
-                        </button>
-
-                        <div id="solver-result-box" style="margin-top: 24px; display: none;" class="glass-card"></div>
-                    </div>
-                </section>
-
-                <!-- 7. BOSS CHALLENGE -->
-                <section id="view-boss-challenge" class="view-section">
-                    <div class="glass-panel" style="padding: 32px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
-                            <div>
-                                <h2 class="brand-font" style="color: var(--secondary-purple);"><i class="fa-solid fa-dragon"></i> Boss Challenge SPLTV (20 Soal)</h2>
-                                <p style="font-size: 0.85rem; color: var(--text-muted);">Selesaikan 20 kasus eliminasi & pemodelan SPLTV!</p>
-                            </div>
-                            <div style="font-size: 1.2rem; font-weight: 700; color: var(--accent-cyan);" id="boss-timer">
-                                ⏱️ 40:00
-                            </div>
-                        </div>
-
-                        <div id="boss-quiz-body">
-                            <!-- Injected Quiz JS -->
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 8. ACHIEVEMENTS -->
-                <section id="view-achievements" class="view-section">
-                    <div class="glass-panel" style="padding: 32px;">
-                        <h2 class="brand-font" style="margin-bottom: 20px;"><i class="fa-solid fa-award"></i> Lencana Detektif Matematika</h2>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;" id="badges-container">
-                            <!-- Injected JS -->
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 9. SUMMARY -->
-                <section id="view-summary" class="view-section">
-                    <div class="glass-panel" style="padding: 32px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                            <h2 class="brand-font"><i class="fa-solid fa-file-lines"></i> Rangkuman Metode SPLTV</h2>
-                            <button class="btn btn-primary no-print" onclick="window.print()"><i class="fa-solid fa-print"></i> Cetak PDF Modul</button>
-                        </div>
-                        
-                        <div style="line-height: 1.8; font-size: 0.95rem;">
-                            <h4>1. Pemodelan Masalah</h4>
-                            <p>Tentukan variabel $x, y, z$ secara rinci sebelum membuat 3 persamaan linear.</p>
-                            <br>
-                            <h4>2. Aturan Cramer (Determinan Matriks)</h4>
-                            <p>Determinan Utama ($D$) dihitung menggunakan aturan Sarrus 3x3. Jika $D = 0$, maka SPLTV tidak memiliki penyelesaian tunggal.</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 10. ABOUT -->
-                <section id="view-about" class="view-section">
-                    <div class="glass-panel" style="padding: 32px; text-align: center;">
-                        <div style="font-size: 3rem; color: var(--primary-blue); margin-bottom: 10px;">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                        </div>
-                        <h2>Identitas Media Pembelajaran SPLTV</h2>
-                        <p style="color: var(--text-muted); margin-top: 10px;">Dirancang khusus untuk Matematika Kelas X SMA (Kurikulum Merdeka)</p>
-
-                        <div style="max-width: 500px; margin: 30px auto 0 auto; text-align: left;" class="glass-card">
-                            <div style="padding: 20px; line-height: 2;">
-                                <b>Materi:</b> Sistem Persamaan Linear Tiga Variabel (SPLTV)<br>
-                                <b>Guru Mata Pelajaran:</b> FAISOL<br>
-                                <b>Sasaran:</b> Siswa Kelas X SMA / MA<br>
-                                <b>Teknologi:</b> HTML5, CSS3, Vanilla JS, Chart.js, MathJax
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-            </main>
-        </div>
-    </div>
-
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
-        const state = {
-            xp: 0,
-            level: 1,
-            completedMissions: [],
-            badges: []
-        };
-
-        const app = {
-            init() {
-                this.loadProgress();
-                this.updateUI();
-                this.renderBadges();
-                this.renderNutrisiChart();
-                this.initBossChallenge();
-            },
-
-            startQuest() {
-                document.getElementById('welcome-modal').style.display = 'none';
-                this.addXP(10);
-            },
-
-            toggleSidebar() {
-                document.getElementById('sidebar').classList.toggle('mobile-open');
-            },
-
-            navigate(viewId) {
-                document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
-                const targetNav = Array.from(document.querySelectorAll('.nav-link')).find(el => el.getAttribute('onclick')?.includes(viewId));
-                if (targetNav) targetNav.classList.add('active');
-
-                document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
-                const targetView = document.getElementById(`view-${viewId}`);
-                if (targetView) targetView.classList.add('active');
-
-                document.getElementById('sidebar').classList.remove('mobile-open');
-
-                const titles = {
-                    'dashboard': 'Markas Komando Detektif',
-                    'concept': 'Konsep & Pemodelan SPLTV',
-                    'misi-1': 'Misi 1: Paket Cafe',
-                    'misi-2': 'Misi 2: Tiket Konser',
-                    'misi-3': 'Misi 3: Nutrisi Atlet',
-                    'solver': 'Matrix & SPLTV Solver',
-                    'boss-challenge': 'Boss Challenge (20 Soal)',
-                    'achievements': 'Badges & XP',
-                    'summary': 'Rangkuman Metode',
-                    'about': 'Info Guru & Modul'
-                };
-                document.getElementById('header-page-title').innerText = titles[viewId] || 'SPLTV Quest';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            },
-
-            addXP(amount) {
-                state.xp += amount;
-                const oldLevel = state.level;
-                state.level = Math.floor(state.xp / 100) + 1;
-                
-                if (state.level > oldLevel) {
-                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                }
-                this.saveProgress();
-                this.updateUI();
-            },
-
-            updateUI() {
-                document.getElementById('user-xp').innerText = `${state.xp} XP`;
-                document.getElementById('user-level').innerText = `Lvl ${state.level}`;
-                
-                const pct = Math.min(100, Math.floor((state.completedMissions.length / 3) * 100));
-                document.getElementById('overall-progress-text').innerText = `${pct}% Selesai`;
-                document.getElementById('overall-progress-bar').style.width = `${pct}%`;
-            },
-
-            saveProgress() {
-                localStorage.setItem('spltv_student_progress', JSON.stringify(state));
-            },
-
-            loadProgress() {
-                const saved = localStorage.getItem('spltv_student_progress');
-                if (saved) {
-                    Object.assign(state, JSON.parse(saved));
-                }
-            },
-
-            resetProgress() {
-                if (confirm("Apakah kamu yakin ingin mereset progress petualangan SPLTV-mu?")) {
-                    localStorage.removeItem('spltv_student_progress');
-                    location.reload();
-                }
-            },
-
-            // VERIFIKASI MISI 1
-            checkMisi1() {
-                const x = parseFloat(document.getElementById('guess-m1-x').value);
-                const y = parseFloat(document.getElementById('guess-m1-y').value);
-                const z = parseFloat(document.getElementById('guess-m1-z').value);
-
-                const feedback = document.getElementById('m1-feedback');
-                feedback.style.display = 'block';
-
-                if (x === 20000 && y === 15000 && z === 25000) {
-                    feedback.innerHTML = `
-                        <div style="padding: 16px; color: var(--accent-cyan);">
-                            <h4>🎉 JAWABAN TEPAT PERSISI! +50 XP</h4>
-                            <p style="font-size: 0.85rem; margin-top: 4px;">
-                                Harga 1 Boba Milk ($x$) = Rp20.000<br>
-                                Harga 1 Cheese Toast ($y$) = Rp15.000<br>
-                                Harga 1 Waffle ($z$) = Rp25.000
-                            </p>
-                        </div>
-                    `;
-                    if (!state.completedMissions.includes('m1')) {
-                        state.completedMissions.push('m1');
-                        this.addXP(50);
-                    }
-                } else {
-                    feedback.innerHTML = `
-                        <div style="padding: 16px; color: var(--accent-amber);">
-                            <h4>❌ Kurang Tepat, Coba Gunakan Kalkulator Matrix Solver!</h4>
-                            <p style="font-size: 0.85rem;">Petunjuk: Eliminasi variabel $z$ dari persamaan (1) dan (2) terlebih dahulu!</p>
-                        </div>
-                    `;
-                }
-            },
-
-            // PEMBAHASAN MISI 2
-            solveMisi2StepByStep() {
-                const box = document.getElementById('misi2-steps-box');
-                box.style.display = 'block';
-                box.innerHTML = `
-                    <div style="padding: 20px; line-height: 1.6;">
-                        <h4 style="color: var(--secondary-purple);">Langkah Eliminasi Misi 2:</h4>
-                        <ol style="font-size: 0.85rem; margin-left: 20px; margin-top: 8px;">
-                            <li>Persamaan (1): $x + y + z = 500$</li>
-                            <li>Persamaan (2): $x + z = 300$</li>
-                            <li>Substitusikan (2) ke (1): $(x+z) + y = 500 \implies 300 + y = 500 \implies \mathbf{y = 200}$ (Tiket Festival)</li>
-                            <li>Substitusi $y=200$ ke persamaan pendapatan: $250x + 150(200) + 100z = 75.000 \implies 250x + 100z = 45.000 \implies 2.5x + z = 450$.</li>
-                            <li>Hasil Akhir: VIP ($x$) = 100 lembar, Festival ($y$) = 200 lembar, Reguler ($z$) = 200 lembar.</li>
-                        </ol>
-                    </div>
-                `;
-                this.addXP(15);
-            },
-
-            // CRAMER MATRIX SOLVER
-            solveMatrixCramer() {
-                const a1 = parseFloat(document.getElementById('a1').value);
-                const b1 = parseFloat(document.getElementById('b1').value);
-                const c1 = parseFloat(document.getElementById('c1').value);
-                const d1 = parseFloat(document.getElementById('d1').value);
-
-                const a2 = parseFloat(document.getElementById('a2').value);
-                const b2 = parseFloat(document.getElementById('b2').value);
-                const c2 = parseFloat(document.getElementById('c2').value);
-                const d2 = parseFloat(document.getElementById('d2').value);
-
-                const a3 = parseFloat(document.getElementById('a3').value);
-                const b3 = parseFloat(document.getElementById('b3').value);
-                const c3 = parseFloat(document.getElementById('c3').value);
-                const d3 = parseFloat(document.getElementById('d3').value);
-
-                // Determinan Utama D (Sarrus)
-                const D = (a1*b2*c3 + b1*c2*a3 + c1*a2*b3) - (c1*b2*a3 + a1*c2*b3 + b1*a2*c3);
-
-                const Dx = (d1*b2*c3 + b1*c2*d3 + c1*d2*b3) - (c1*b2*d3 + d1*c2*b3 + b1*d2*c3);
-                const Dy = (a1*d2*c3 + d1*c2*a3 + c1*a2*d3) - (c1*d2*a3 + a1*c2*d3 + d1*a2*c3);
-                const Dz = (a1*b2*d3 + b1*d2*a3 + d1*a2*b3) - (d1*b2*a3 + a1*d2*b3 + b1*a2*d3);
-
-                const box = document.getElementById('solver-result-box');
-                box.style.display = 'block';
-
-                if (D === 0) {
-                    box.innerHTML = `<div style="padding:16px; color:red;">Determinan D = 0. Sistem ini tidak memiliki penyelesaian tunggal!</div>`;
-                } else {
-                    const x = Dx / D;
-                    const y = Dy / D;
-                    const z = Dz / D;
-
-                    box.innerHTML = `
-                        <div style="padding: 20px;">
-                            <h4 style="color: var(--accent-amber);">Hasil Perhitungan Matriks Cramer:</h4>
-                            <p style="font-size: 0.9rem; margin-top: 8px;">
-                                Determinan Utama ($D$) = <b>${D}</b><br>
-                                <b>Nilai $x$</b> = $D_x / D$ = ${Dx} / ${D} = <b style="color:var(--primary-blue);">${x}</b><br>
-                                <b>Nilai $y$</b> = $D_y / D$ = ${Dy} / ${D} = <b style="color:var(--secondary-purple);">${y}</b><br>
-                                <b>Nilai $z$</b> = $D_z / D$ = ${Dz} / ${D} = <b style="color:var(--accent-cyan);">${z}</b>
-                            </p>
-                        </div>
-                    `;
-                }
-            },
-
-            renderNutrisiChart() {
-                const ctx = document.getElementById('chartNutrisi').getContext('2d');
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Dada Ayam (100g)', 'Nasi Merah (100g)', 'Telur (100g)'],
-                        datasets: [
-                            { label: 'Protein (g)', data: [31, 2.6, 13], backgroundColor: '#3B82F6' },
-                            { label: 'Karbohidrat (g)', data: [0, 23, 1.1], backgroundColor: '#A855F7' },
-                            { label: 'Lemak (g)', data: [3.6, 0.9, 11], backgroundColor: '#06B6D4' }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { labels: { color: '#F8FAFC' } } },
-                        scales: {
-                            x: { ticks: { color: '#94A3B8' } },
-                            y: { ticks: { color: '#94A3B8' } }
-                        }
-                    }
-                });
-            },
-
-            initBossChallenge() {
-                const container = document.getElementById('boss-quiz-body');
-                container.innerHTML = `
-                    <div class="glass-card" style="padding: 24px; text-align: center;">
-                        <h3>Uji Ujian Akhir Detektif (20 Soal SPLTV)</h3>
-                        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 10px 0 20px 0;">Pecahkan soal-soal eliminasi, substitusi, dan determinan matriks untuk meraih gelar Master Detektif!</p>
-                        <button class="btn btn-purple" onclick="alert('Ujian Boss Challenge Dimulai!')">Mulai Ujian</button>
-                    </div>
-                `;
-            },
-
-            renderBadges() {
-                const badges = [
-                    { title: 'Cafe Mystery Solver', icon: 'fa-mug-hot', desc: 'Selesaikan Misi 1' },
-                    { title: 'Music Fest Manager', icon: 'fa-ticket', desc: 'Selesaikan Misi 2' },
-                    { title: 'Nutrition Master', icon: 'fa-dumbbell', desc: 'Selesaikan Misi 3' },
-                    { title: 'Cramer Matrix Expert', icon: 'fa-calculator', desc: 'Gunakan Matrix Solver' }
-                ];
-
-                document.getElementById('badges-container').innerHTML = badges.map(b => `
-                    <div class="glass-card" style="padding: 20px; text-align: center;">
-                        <i class="fa-solid ${b.icon}" style="font-size: 2.5rem; color: var(--accent-amber); margin-bottom: 12px;"></i>
-                        <h4>${b.title}</h4>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">${b.desc}</p>
-                    </div>
-                `).join('');
-            }
-        };
-
-        document.addEventListener('DOMContentLoaded', () => app.init());
-    </script>
-</body>
-</html>
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#1F3864"><title>Modul Interaktif SPLTV</title><style>:root{--bg:#fff;--fg:#1c1c1c;--navy:#1F3864;--blue:#2E74B5;--line:#c8c8c8;--head:#1F3864;--zebra:#f4f7fb;--code:#f2f2f2}
+@media (prefers-color-scheme:dark){:root{--bg:#14171c;--fg:#e6e6e6;--navy:#9ec1ee;--blue:#7fb2ea;--line:#3a4048;--head:#24467f;--zebra:#1b2027;--code:#222}}
+html{scroll-behavior:smooth}
+body{font-family:Calibri,"Segoe UI",system-ui,Arial,sans-serif;background:var(--bg);color:var(--fg);line-height:1.65;margin:0;font-size:17px}
+body>*{max-width:900px;margin-left:auto;margin-right:auto;padding-left:20px;padding-right:20px;box-sizing:border-box}
+header#title-block-header{background:#1F3864;color:#fff;max-width:none;padding:48px 20px;text-align:center}
+header#title-block-header .title{color:#fff;margin:0;border:0;font-size:2.1rem}
+header#title-block-header .subtitle{color:#BDD7EE;margin:.4em 0 0}
+nav#TOC{background:var(--zebra);border:1px solid var(--line);border-radius:10px;margin-top:24px;padding:14px 24px}
+nav#TOC ul{list-style:none;padding-left:18px}nav#TOC>ul{padding-left:0}
+nav#TOC a{text-decoration:none;color:var(--blue)}
+h1{color:var(--navy);border-bottom:3px solid var(--navy);padding-bottom:6px;margin-top:2.6em;font-size:1.9rem}
+h2{color:var(--blue);margin-top:1.8em;font-size:1.4rem}
+h3{margin-top:1.4em;font-size:1.15rem}
+.table-wrap,table{max-width:100%}
+table{border-collapse:collapse;margin:14px auto;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top}
+thead th{background:var(--head);color:#fff;text-align:center}
+tbody tr:nth-child(even){background:var(--zebra)}
+img{max-width:100%;height:auto;display:block;margin:12px auto;background:#fff;border-radius:6px}
+p{margin:.6em 0}
+@media print{body{font-size:12pt}h1{page-break-before:always}nav#TOC{display:none}}
+@media (max-width:600px){body{font-size:16px}}
+
+body>*{max-width:none;padding:0;margin:0}
+body{display:block;font-size:17px}
+#side{position:fixed;inset:0 auto 0 0;width:290px;background:var(--zebra);border-right:1px solid var(--line);overflow-y:auto;z-index:30;display:flex;flex-direction:column}
+.brand{background:#1F3864;color:#fff;padding:20px 18px;font-weight:700;font-size:1.1rem;position:sticky;top:0}
+.brand small{display:block;font-weight:400;opacity:.8;font-size:.8rem;margin-top:2px}
+#side nav{padding:10px 8px 40px}
+#side a{display:block;text-decoration:none;color:var(--fg);padding:8px 12px;border-radius:8px;font-size:.95rem;line-height:1.35}
+#side a:hover{background:rgba(46,116,181,.14)}
+#side a.m1{font-weight:600;margin-top:4px}
+#side a.on{background:#1F3864;color:#fff}
+.sub{display:none;margin:2px 0 6px 12px;border-left:2px solid var(--line)}
+.sub.open{display:block}
+.sub a{font-size:.86rem;padding:5px 10px;color:var(--blue)}
+.sub a.cur{font-weight:700;background:rgba(46,116,181,.14)}
+#main{margin-left:290px;padding:32px 40px 60px;max-width:1010px}
+.page{display:none}.page.show{display:block}
+.page>h1:first-child{margin-top:0}
+.pn{display:flex;justify-content:space-between;gap:12px;margin-top:40px;padding-top:18px;border-top:1px solid var(--line)}
+.pn a{padding:10px 16px;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--blue);font-weight:600;max-width:48%}
+.pn a:hover{background:var(--zebra)}
+.hero{background:#1F3864;color:#fff;border-radius:16px;padding:44px 28px;text-align:center;margin-bottom:24px}
+.hero h1{color:#fff;border:0;margin:0 0 10px;font-size:2rem}
+.hero p{margin:6px 0;color:#DCE8F7}
+.chips span{display:inline-block;background:rgba(255,255,255,.15);border-radius:20px;padding:4px 14px;margin:4px;font-size:.9rem}
+.btn{display:inline-block;margin-top:14px;background:#fff;color:#1F3864;padding:10px 22px;border-radius:30px;font-weight:700;text-decoration:none}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px;text-decoration:none;color:var(--fg);background:var(--zebra)}
+.card:hover{border-color:var(--blue)}
+footer{text-align:center;font-size:.85em;opacity:.7;margin-top:40px}
+#burger{display:none;position:fixed;top:10px;left:10px;z-index:40;background:#1F3864;color:#fff;border:0;border-radius:8px;font-size:1.3rem;padding:6px 12px}
+#scrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:25}
+@media (max-width:860px){
+ #side{transform:translateX(-100%);transition:transform .25s;width:285px}
+ body.open #side{transform:none}body.open #scrim{display:block}
+ #burger{display:block}#main{margin-left:0;padding:60px 16px 40px}
+}
+@media print{#side,#burger,.pn,.hero .btn{display:none!important}#main{margin:0;padding:0}.page{display:block!important}}
+html{scroll-behavior:auto}
+table.eq{border-collapse:collapse;display:table;margin:14px auto;overflow:visible}
+table.eq td,table.eq tr{border:0!important;background:none!important;padding:2px 8px;vertical-align:middle;text-align:center}
+table.mx{border-collapse:collapse;display:table;margin:0 auto;overflow:visible}
+table.mx td{border:0!important;background:none!important;padding:1px 10px;text-align:center;white-space:nowrap}
+table.mx tr td:first-child{border-left:2px solid var(--fg)!important}
+table.mx tr td:last-child{border-right:2px solid var(--fg)!important}
+table.box{display:table;width:100%;border-collapse:collapse;margin:14px 0}
+table.box td{border:0!important;border-left:5px solid var(--navy)!important;background:var(--zebra)!important;padding:10px 16px}
+@media (max-width:860px){.brand{padding-left:64px}}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 3px;font-size:.95em}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 4px}
+.eqd{text-align:center;margin:12px 0;font-size:1.08em;overflow-x:auto}
+.ex{border:1px solid var(--line);border-radius:12px;margin:18px 0;overflow:hidden}
+.exh{background:#1F3864;color:#fff;padding:8px 14px;font-weight:700}
+.exh .tag{float:right;background:rgba(255,255,255,.18);border-radius:12px;padding:1px 10px;font-size:.8rem;font-weight:600}
+.ex .soal{margin:0;padding:12px 16px;background:var(--zebra);border-bottom:1px dashed var(--line)}
+.ex ol.steps{margin:10px 16px 6px 20px;padding-left:18px}
+.ex ol.steps li{margin:6px 0}
+.ex .ans{margin:0;padding:10px 16px;background:rgba(46,139,87,.12);border-top:1px solid var(--line);font-weight:600}
+.opt{margin:2px 0 14px 28px}
+.qn{margin:12px 0 4px}
+ul.o{list-style:none;margin:2px 0 14px 28px;padding:0}
+.stim{border-left:5px solid #C55A11;background:rgba(197,90,17,.09);padding:10px 16px;margin:16px 0;border-radius:0 8px 8px 0}
+.stim b.t{display:block;color:#C55A11;margin-bottom:4px}
+.warn{border-left:5px solid #C00000;background:rgba(192,0,0,.07);padding:10px 16px;margin:14px 0;border-radius:0 8px 8px 0}
+.key{border-left:5px solid #2E8B57;background:rgba(46,139,87,.09);padding:10px 16px;margin:14px 0;border-radius:0 8px 8px 0}
+.calc{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--zebra);margin:16px 0}
+.calc label{display:inline-block;margin:4px 10px 4px 0;font-size:.92rem}
+.calc input,.calc select{width:90px;padding:6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);font-size:1rem}
+.calc select{width:auto}
+.calc button{background:#1F3864;color:#fff;border:0;border-radius:8px;padding:8px 18px;font-size:1rem;cursor:pointer;margin-top:6px}
+.calc output{display:block;margin-top:10px;font-weight:600;line-height:1.7}
+table.dt td,table.dt th{font-size:.96em}
+.qform label{display:block;margin:10px 0 3px;font-weight:600;font-size:.93rem}
+.qform input[type=text]{width:100%;max-width:420px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);font-size:1rem;box-sizing:border-box}
+.qbtn{background:#1F3864;color:#fff;border:0;border-radius:10px;padding:11px 24px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:14px}
+.qbtn:disabled{opacity:.55;cursor:wait}.qbtn.sec{background:transparent;color:var(--blue);border:1px solid var(--blue)}
+.qitem{border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:14px 0}
+.qitem .qt{font-weight:600;margin:0 0 6px}
+.qitem label.op{display:block;padding:5px 8px;border-radius:8px;cursor:pointer;margin:2px 0}
+.qitem label.op:hover{background:var(--zebra)}
+.qitem input.isi{padding:8px 10px;border:1px solid var(--line);border-radius:8px;width:220px;max-width:100%;background:var(--bg);color:var(--fg);font-size:1rem}
+.qbar{position:sticky;top:0;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--line);z-index:5;font-weight:600}
+.qres{border:2px solid #2E8B57;border-radius:14px;padding:16px 20px;margin:12px 0;background:rgba(46,139,87,.08)}
+.qres .big{font-size:2.4rem;font-weight:800;color:#2E8B57;margin:0}
+.qrev{border-left:5px solid var(--line);padding:6px 14px;margin:10px 0}
+.qrev.ok{border-color:#2E8B57}.qrev.no{border-color:#C00000}
+.msg{padding:10px 14px;border-radius:8px;margin:10px 0}
+.msg.warn{background:rgba(197,90,17,.12);border-left:5px solid #C55A11}.msg.err{background:rgba(192,0,0,.1);border-left:5px solid #C00000}.msg.good{background:rgba(46,139,87,.12);border-left:5px solid #2E8B57}
+/* ===== tambahan khusus tampilan HP / Android ===== */
+*{-webkit-tap-highlight-color:transparent}
+#side a{padding:12px 14px}
+.sub a{padding:10px 12px}
+.pn a{min-height:44px;display:flex;align-items:center}
+.qitem label.op{padding:11px 10px;border:1px solid transparent}
+.qitem label.op:has(input:checked){background:rgba(46,116,181,.14);border-color:var(--blue)}
+.qitem label.op input{width:20px;height:20px;margin-right:8px;vertical-align:middle}
+.qform input[type=text],.qitem input.isi,.calc input,.calc select{font-size:16px;min-height:44px}
+.qbtn{min-height:48px}
+.cards .card{min-height:44px}
+@media (max-width:860px){
+ body{font-size:16px}
+ .hero{padding:32px 16px}.hero h1{font-size:1.5rem}
+ h1{font-size:1.5rem}h2{font-size:1.2rem}
+ .qitem{padding:10px 12px}
+ .calc input{width:100%;max-width:none}.calc label{display:block}
+ .qform input[type=text]{max-width:none}
+ .ex ol.steps{margin-left:6px}
+}
+.sys{display:inline-block;position:relative;padding:4px 8px 4px 34px;margin:8px 0;text-align:left;font-size:1.05rem}
+.sys:before{content:"{";position:absolute;left:2px;top:50%;transform:translateY(-50%) scaleY(2.4);font-size:2.2rem;font-weight:200;line-height:1}
+.sys div{display:flex;gap:18px;justify-content:space-between;white-space:nowrap;padding:1px 0}
+.sys .no{opacity:.65;font-size:.9em}
+.sysw{text-align:center;overflow-x:auto}
+.stctl{display:flex;flex-wrap:wrap;gap:8px;padding:8px 16px 4px}
+.stctl button{background:#1F3864;color:#fff;border:0;border-radius:8px;padding:9px 14px;font-size:.92rem;font-weight:600;cursor:pointer;min-height:42px}
+.stctl button.sec{background:transparent;color:var(--blue);border:1px solid var(--blue)}
+.stctl .info{align-self:center;font-size:.85rem;opacity:.75}
+.stepper li.hid{display:none}
+.stepper li.new{animation:pop .35s ease}
+@keyframes pop{from{background:rgba(255,200,0,.35)}to{background:transparent}}
+.lat{border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:16px 0}
+.lat .qt{margin:0 0 6px}
+.ansrow{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.ansrow label{display:flex;flex-direction:column;font-size:.88rem;font-weight:600;flex:1 1 140px}
+.ansrow input{padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);font-size:16px;min-height:44px;width:100%;box-sizing:border-box;margin-top:3px}
+.ansrow input.ok{border-color:#2E8B57;background:rgba(46,139,87,.12)}
+.ansrow input.no{border-color:#C00000;background:rgba(192,0,0,.08)}
+.lat .fb{margin:6px 0}
+.lat .pemb{border-left:5px solid #2E74B5;background:var(--zebra);padding:8px 14px;margin-top:8px;border-radius:0 8px 8px 0}
+.lat .pemb ol{margin:4px 0 4px 18px;padding-left:10px}
+.lat.done{border-color:#2E8B57}
+.tally{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--line);font-weight:600}
+.solver{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--zebra);margin:14px 0}
+.solver .row{display:grid;grid-template-columns:repeat(4,1fr) ;gap:6px;margin:6px 0;align-items:center}
+.solver .row span{font-size:.8rem;opacity:.75;text-align:center}
+.solver input{padding:8px;border:1px solid var(--line);border-radius:8px;width:100%;box-sizing:border-box;font-size:16px;min-height:42px;background:var(--bg);color:var(--fg);text-align:center}
+.solver .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.solver output{display:block;margin-top:10px;line-height:1.7}
+.cekt{border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:var(--zebra);margin:14px 0}
+.cekt .ansrow label{flex:1 1 90px}
+.cekt .res div{padding:2px 0}
+.pahami .it{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
+.pahami .it button{margin-right:8px;min-height:42px;padding:8px 18px;border-radius:8px;border:1px solid var(--blue);background:transparent;color:var(--blue);font-weight:700;cursor:pointer}
+@media (max-width:860px){.sys{font-size:1rem;padding-left:30px}.solver .row{grid-template-columns:repeat(4,1fr);gap:4px}}
+@media print{
+ .stepper li.hid{display:list-item!important}.stctl,.ansrow button,.lat .btns,.solver .btns,.tally{display:none!important}
+ .lat .pemb{display:none}.ansrow input{border:0;border-bottom:1px solid #000;border-radius:0;background:none;min-height:24px}
+ .pahami .it button{display:none}.printkey .pemb{display:block!important}
+}
+.exh .tag{float:none;display:inline-block;margin-left:8px;vertical-align:middle}
+@media print{.ex .ans{display:block!important}.ex ol.steps li{display:list-item!important}.solver,.cards{display:none!important}}
+</style></head><body><button id="burger" aria-label="Menu">&#9776;</button><div id="scrim"></div><aside id="side"><div class="brand">SPLTV<small>Modul Interaktif Kelas X</small></div><nav><a class="m1" href="#" data-go="beranda" data-p="beranda">Beranda</a><a class="m1" href="#" data-go="bab1" data-p="bab1">A. Informasi Umum</a><a class="m1" href="#" data-go="bab2" data-p="bab2">B. Konsep Dasar SPLTV</a><div class="sub" data-for="bab2"><a href="#" data-go="bab2#h4" data-h="h4">1. Persamaan Linear Tiga Variabel (PLTV)</a><a href="#" data-go="bab2#h5" data-h="h5">2. Sistem Persamaan Linear Tiga Variabel (SPLTV)</a><a href="#" data-go="bab2#h6" data-h="h6">3. Cek Tripel (Interaktif)</a><a href="#" data-go="bab2#h7" data-h="h7">4. Cek Pemahaman: Apakah Ini SPLTV?</a><a href="#" data-go="bab2#h8" data-h="h8">5. Mengapa Perlu Tiga Persamaan?</a><a href="#" data-go="bab2#h9" data-h="h9">6. Tiga Kemungkinan Penyelesaian</a><a href="#" data-go="bab2#h10" data-h="h10">7. Peta Langkah Umum</a></div><a class="m1" href="#" data-go="bab3" data-p="bab3">C. Metode Eliminasi</a><a class="m1" href="#" data-go="bab4" data-p="bab4">D. Metode Substitusi</a><a class="m1" href="#" data-go="bab5" data-p="bab5">E. Metode Gabungan dan Jenis Penyelesaian</a><a class="m1" href="#" data-go="bab6" data-p="bab6">F. Penerapan SPLTV dalam Kasus</a><a class="m1" href="#" data-go="bab7" data-p="bab7">G. Latihan Interaktif: Soal Biasa</a><a class="m1" href="#" data-go="bab8" data-p="bab8">H. Latihan Interaktif: Soal Penerapan</a><a class="m1" href="#" data-go="bab9" data-p="bab9">I. Penyelesai dan Pengecek SPLTV</a><a class="m1" href="#" data-go="bab10" data-p="bab10">J. Rangkuman dan Refleksi</a></nav></aside><main id="main"><section class="page" id="beranda"><div class="hero"><h1>Modul Interaktif Matematika<br>SPLTV</h1><p>Sistem Persamaan Linear Tiga Variabel &bull; Eliminasi, Substitusi, dan Penerapan</p><p class="chips"><span>Konsep</span><span>Eliminasi</span><span>Substitusi</span><span>Kasus</span><span>Latihan</span></p><a class="btn" href="#" data-go="bab1">Mulai belajar &rarr;</a></div><div class="key"><b>Isi modul:</b> konsep dasar, 14 contoh langkah demi langkah (bisa dibuka bertahap), 14 soal latihan interaktif dengan pemeriksaan langsung (8 soal biasa dan 6 penerapan), serta penyelesai pengecek SPLTV. Buka menu ☰ untuk berpindah bagian.</div><div class="cards"><a class="card" href="#" data-go="bab1"><b>A. Informasi Umum</b></a><a class="card" href="#" data-go="bab2"><b>B. Konsep Dasar SPLTV</b></a><a class="card" href="#" data-go="bab3"><b>C. Metode Eliminasi</b></a><a class="card" href="#" data-go="bab4"><b>D. Metode Substitusi</b></a><a class="card" href="#" data-go="bab5"><b>E. Metode Gabungan dan Jenis Penyelesaian</b></a><a class="card" href="#" data-go="bab6"><b>F. Penerapan SPLTV dalam Kasus</b></a><a class="card" href="#" data-go="bab7"><b>G. Latihan Interaktif: Soal Biasa</b></a><a class="card" href="#" data-go="bab8"><b>H. Latihan Interaktif: Soal Penerapan</b></a><a class="card" href="#" data-go="bab9"><b>I. Penyelesai dan Pengecek SPLTV</b></a><a class="card" href="#" data-go="bab10"><b>J. Rangkuman dan Refleksi</b></a></div></section><section class="page" id="bab1"><h1>A. Informasi Umum</h1><h2 id="h1">1. Identitas Modul</h2><table class="dt"><tbody><tr><td><b>Topik</b></td><td>Sistem Persamaan Linear Tiga Variabel (SPLTV)</td></tr><tr><td><b>Satuan pendidikan</b></td><td>SMA Takhassus Al-Qur’an</td></tr><tr><td><b>Kelas / Fase</b></td><td>X / Fase E (menyesuaikan kurikulum sekolah)</td></tr><tr><td><b>Alokasi waktu</b></td><td>4 pertemuan × 2 JP (8 × 45 menit)</td></tr><tr><td><b>Model pembelajaran</b></td><td>Discovery Learning, Problem Based Learning, dan latihan interaktif bertahap</td></tr><tr><td><b>Prasyarat</b></td><td>Persamaan linear satu variabel, SPLDV (eliminasi dan substitusi), operasi bilangan bulat dan pecahan</td></tr></tbody></table><h2 id="h2">2. Tujuan Pembelajaran</h2><ol><li>Menjelaskan konsep persamaan linear tiga variabel dan SPLTV serta membedakannya dari SPLDV dan persamaan non-linear.</li><li>Menentukan himpunan penyelesaian SPLTV dengan <b>metode eliminasi</b>.</li><li>Menentukan himpunan penyelesaian SPLTV dengan <b>metode substitusi</b> dan <b>gabungan</b>.</li><li>Menjelaskan tiga kemungkinan penyelesaian: tunggal, tak hingga banyak, dan tidak ada.</li><li>Memodelkan masalah kontekstual menjadi SPLTV, menyelesaikannya, dan menafsirkan hasilnya.</li><li>Memeriksa kebenaran penyelesaian dengan substitusi balik.</li></ol><h2 id="h3">3. Cara Memakai Modul Interaktif</h2><ul><li><b>Langkah berikutnya:</b> pada contoh soal, ketuk tombol agar penyelesaian muncul satu langkah demi satu langkah. Cobalah menebak langkah selanjutnya sebelum membukanya.</li><li><b>Cek tripel dan Cek pemahaman:</b> latihan singkat dengan umpan balik langsung.</li><li><b>Latihan interaktif:</b> isi nilai x, y, z lalu ketuk <b>Periksa</b>. Pembahasan baru dibuka bila diminta.</li><li><b>Penyelesai SPLTV:</b> alat untuk mengecek jawaban sendiri (bukan pengganti proses menghitung).</li><li>Skor latihan hanya tampil pada sesi ini dan <b>tidak disimpan</b>. Untuk menyimpan nilai, guru dapat memakai versi modul yang terhubung ke Google Sheets.</li></ul><div class="key"><b>Nilai yang dilatih</b><br/><b>Teliti</b> (selalu cek kembali), <b>sabar dan istiqamah</b> (langkah kecil yang runtut), serta <b>amanah</b> (menghitung uang dan data dengan jujur). Konteks soal diambil dari kehidupan santri: kantin, infak, sembako untuk dhuafa, setoran hafalan, dan asrama.</div><div class="pn"></div></section><section class="page" id="bab2"><h1>B. Konsep Dasar SPLTV</h1><h2 id="h4">1. Persamaan Linear Tiga Variabel (PLTV)</h2><p>Persamaan linear tiga variabel adalah persamaan yang dapat ditulis dalam bentuk</p><div class="eqd"><b>ax + by + cz = d</b></div><p>dengan a, b, c koefisien (tidak ketiganya nol), x, y, z variabel, dan d konstanta. Ciri utamanya: <b>pangkat tertinggi variabel adalah 1</b> dan <b>tidak ada perkalian antarvariabel</b> (tidak ada suku xy, xz, atau x²).</p><h2 id="h5">2. Sistem Persamaan Linear Tiga Variabel (SPLTV)</h2><p>SPLTV adalah <b>tiga persamaan linear</b> yang memuat <b>tiga variabel yang sama</b> dan harus dipenuhi bersama-sama.</p><div class="sysw"><div class="sys"><div><span>a<sub>1</sub>x + b<sub>1</sub>y + c<sub>1</sub>z = d<sub>1</sub></span><span class="no">(1)</span></div><div><span>a<sub>2</sub>x + b<sub>2</sub>y + c<sub>2</sub>z = d<sub>2</sub></span><span class="no">(2)</span></div><div><span>a<sub>3</sub>x + b<sub>3</sub>y + c<sub>3</sub>z = d<sub>3</sub></span><span class="no">(3)</span></div></div></div><ul><li><b>Penyelesaian</b> SPLTV adalah tripel terurut <b>(x, y, z)</b> yang memenuhi ketiga persamaan sekaligus.</li><li><b>Himpunan penyelesaian (HP)</b> adalah himpunan semua penyelesaian, misalnya HP = {(1, 2, 3)}.</li><li>Tidak setiap persamaan harus memuat ketiga variabel. Contoh: <i>x + y = 5</i> tetap boleh menjadi salah satu persamaan SPLTV (koefisien z-nya 0).</li></ul><h2 id="h6">3. Cek Tripel (Interaktif)</h2><p>Sistem berikut memiliki tepat satu penyelesaian. Masukkan nilai x, y, z dan lihat apakah ketiga persamaan terpenuhi. <i>Coba (1, 2, 3), lalu coba (2, 1, 3).</i></p><div class="sysw"><div class="sys"><div><span>x + y + z = 6</span><span class="no">(1)</span></div><div><span>2x − y + z = 3</span><span class="no">(2)</span></div><div><span>x + 2y − z = 2</span><span class="no">(3)</span></div></div></div><div class="cekt"><div class="ansrow"><label>x<input id="cx" inputmode="decimal" type="text"/></label><label>y<input id="cy" inputmode="decimal" type="text"/></label><label>z<input id="cz" inputmode="decimal" type="text"/></label></div><button class="qbtn" id="cbtn" type="button">Periksa tripel</button><div class="res" id="cres"></div></div><h2 id="h7">4. Cek Pemahaman: Apakah Ini SPLTV?</h2><div class="pahami" id="pahami"></div><h2 id="h8">5. Mengapa Perlu Tiga Persamaan?</h2><p>Satu persamaan x + y + z = 6 dipenuhi banyak tripel: (1,2,3), (2,2,2), (0,0,6), … Dua persamaan masih menyisakan banyak kemungkinan. Dengan <b>tiga persamaan yang saling bebas</b> (tidak ada yang bisa diturunkan dari yang lain), biasanya hanya tersisa <b>satu tripel</b>. Secara geometri, tiga bidang berpotongan di satu titik.</p><h2 id="h9">6. Tiga Kemungkinan Penyelesaian</h2><table class="dt"><thead><tr><th>Hasil proses</th><th>Makna</th><th>Contoh</th></tr></thead><tbody><tr><td>Diperoleh nilai x, y, z yang pasti</td><td><b>Tepat satu penyelesaian</b> (tiga bidang berpotongan di satu titik)</td><td>HP = {(1, 2, 3)}</td></tr><tr><td>Muncul pernyataan benar seperti <b>0 = 0</b> dan variabel tersisa</td><td><b>Tak hingga banyak penyelesaian</b> (ada persamaan yang “tidak menambah informasi”)</td><td>Contoh 8</td></tr><tr><td>Muncul pernyataan salah seperti <b>0 = −2</b></td><td><b>Tidak ada penyelesaian</b> (persamaan saling bertentangan)</td><td>Contoh 9</td></tr></tbody></table><h2 id="h10">7. Peta Langkah Umum</h2><ol><li><b>Pilih</b> variabel yang paling mudah dihilangkan/diisolasi.</li><li><b>Kurangi</b> SPLTV menjadi SPLDV (dua persamaan, dua variabel) menggunakan dua pasangan persamaan berbeda.</li><li><b>Selesaikan</b> SPLDV itu.</li><li><b>Substitusikan</b> nilai yang diperoleh untuk mendapatkan variabel ketiga.</li><li><b>Cek</b> pada ketiga persamaan, lalu tulis HP.</li></ol><div class="pn"></div></section><section class="page" id="bab3"><h1>C. Metode Eliminasi</h1><p><b>Eliminasi</b> berarti menghilangkan satu variabel dengan menjumlahkan atau mengurangkan dua persamaan setelah koefisien variabel itu disamakan (nilai mutlaknya).</p><table class="dt"><thead><tr><th>Koefisien variabel yang dihilangkan</th><th>Tindakan</th></tr></thead><tbody><tr><td>Sama nilai dan <b>sama tanda</b> (mis. +2z dan +2z)</td><td><b>Kurangkan</b> kedua persamaan</td></tr><tr><td>Sama nilai dan <b>berlawanan tanda</b> (mis. +z dan −z)</td><td><b>Jumlahkan</b> kedua persamaan</td></tr><tr><td>Berbeda</td><td><b>Kalikan</b> persamaan dengan bilangan yang sesuai terlebih dahulu</td></tr></tbody></table><div class="key"><b>Tips memilih variabel</b><br/>Pilih variabel yang koefisiennya paling sederhana (mis. +1 dan −1) atau yang sudah mudah disamakan. <b>Hilangkan variabel yang sama</b> dari dua pasangan persamaan yang berbeda, agar diperoleh dua persamaan baru dengan dua variabel yang sama.</div><div class="ex"><div class="exh">Contoh 1. Eliminasi z dengan penjumlahan<span class="tag">Standar</span></div><div class="soal">Tentukan HP dari:<div class="sysw"><div class="sys"><div><span>x + y + z = 6</span><span class="no">(1)</span></div><div><span>2x − y + z = 3</span><span class="no">(2)</span></div><div><span>x + 2y − z = 2</span><span class="no">(3)</span></div></div></div></div><ol class="steps stepper"><li><b>Strategi:</b> koefisien z adalah +1, +1, −1. Hilangkan z dengan <b>menjumlahkan</b> (1) + (3) dan (2) + (3).</li><li><b>(1) + (3):</b> (x + y + z) + (x + 2y − z) = 6 + 2 → <b>2x + 3y = 8</b>  (4)</li><li><b>(2) + (3):</b> (2x − y + z) + (x + 2y − z) = 3 + 2 → <b>3x + y = 5</b>  (5)</li><li><b>Selesaikan SPLDV (4) dan (5):</b> kalikan (5) dengan 3 → 9x + 3y = 15. Kurangkan (4): (9x + 3y) − (2x + 3y) = 15 − 8 → 7x = 7 → <b>x = 1</b>.</li><li><b>Cari y:</b> dari (5): 3(1) + y = 5 → <b>y = 2</b>.</li><li><b>Cari z:</b> dari (1): 1 + 2 + z = 6 → <b>z = 3</b>.</li><li><b>Cek:</b> (2) 2(1) − 2 + 3 = 3 ✓; (3) 1 + 2(2) − 3 = 2 ✓.</li></ol><p class="ans">Jawaban: HP = <b>{(1, 2, 3)}</b>.</p></div><div class="ex"><div class="exh">Contoh 2. Eliminasi z dengan pengalian<span class="tag">Standar</span></div><div class="soal">Tentukan HP dari:<div class="sysw"><div class="sys"><div><span>x + 2y + z = 3</span><span class="no">(1)</span></div><div><span>2x − y + z = 9</span><span class="no">(2)</span></div><div><span>3x + y − 2z = 4</span><span class="no">(3)</span></div></div></div></div><ol class="steps stepper"><li><b>Strategi:</b> hilangkan z. Koefisien z: +1, +1, −2.</li><li><b>Pasangan (1) dan (3):</b> kalikan (1) dengan 2 → 2x + 4y + 2z = 6. Jumlahkan dengan (3): (2x + 4y + 2z) + (3x + y − 2z) = 6 + 4 → 5x + 5y = 10 → <b>x + y = 2</b>  (4)</li><li><b>Pasangan (1) dan (2):</b> koefisien z sama-sama +1, maka kurangkan: (x + 2y + z) − (2x − y + z) = 3 − 9 → −x + 3y = −6 → <b>x − 3y = 6</b>  (5)</li><li><b>SPLDV (4) dan (5):</b> kurangkan (4) − (5): (x + y) − (x − 3y) = 2 − 6 → 4y = −4 → <b>y = −1</b>.</li><li><b>Cari x:</b> dari (4): x + (−1) = 2 → <b>x = 3</b>.</li><li><b>Cari z:</b> dari (1): 3 + 2(−1) + z = 3 → <b>z = 2</b>.</li><li><b>Cek:</b> (2) 6 + 1 + 2 = 9 ✓; (3) 9 − 1 − 4 = 4 ✓.</li></ol><p class="ans">Jawaban: HP = <b>{(3, −1, 2)}</b>.</p></div><div class="ex"><div class="exh">Contoh 3. Variabel negatif dan dua kali eliminasi<span class="tag">Standar</span></div><div class="soal">Tentukan HP dari:<div class="sysw"><div class="sys"><div><span>x + y + 2z = 4</span><span class="no">(1)</span></div><div><span>2x − y + z = 11</span><span class="no">(2)</span></div><div><span>3x + 2y − z = 7</span><span class="no">(3)</span></div></div></div></div><ol class="steps stepper"><li><b>Strategi:</b> hilangkan z. Koefisien z: +2, +1, −1.</li><li><b>(2) + (3):</b> (2x − y + z) + (3x + 2y − z) = 11 + 7 → <b>5x + y = 18</b>  (4)</li><li><b>(1) dan (2):</b> kalikan (2) dengan 2 → 4x − 2y + 2z = 22. Kurangkan dari (1): (x + y + 2z) − (4x − 2y + 2z) = 4 − 22 → −3x + 3y = −18 → <b>−x + y = −6</b>  (5)</li><li><b>Eliminasi y:</b> kurangkan (4) − (5): (5x + y) − (−x + y) = 18 − (−6) → 6x = 24 → <b>x = 4</b>.</li><li><b>Cari y:</b> dari (5): −4 + y = −6 → <b>y = −2</b>.</li><li><b>Cari z:</b> dari (2): 8 + 2 + z = 11 → <b>z = 1</b>.</li><li><b>Cek:</b> (1) 4 − 2 + 2 = 4 ✓; (3) 12 − 4 − 1 = 7 ✓.</li></ol><p class="ans">Jawaban: HP = <b>{(4, −2, 1)}</b>.</p></div><div class="pn"></div></section><section class="page" id="bab4"><h1>D. Metode Substitusi</h1><p><b>Substitusi</b> berarti menyatakan satu variabel dalam variabel lain dari satu persamaan, lalu menggantikannya (mensubstitusikannya) ke persamaan yang lain sehingga banyak variabel berkurang.</p><div class="key"><b>Kapan substitusi paling nyaman?</b><br/>Bila ada persamaan yang variabelnya mudah <b>diisolasi</b> (koefisien 1), misalnya x = 2y − 1, atau bila ada persamaan yang hanya memuat dua variabel.</div><div class="ex"><div class="exh">Contoh 4. Substitusi sederhana<span class="tag">Standar</span></div><div class="soal">Tentukan HP dari:<div class="sysw"><div class="sys"><div><span>x + y = 5</span><span class="no">(1)</span></div><div><span>y + z = 7</span><span class="no">(2)</span></div><div><span>x + y + z = 9</span><span class="no">(3)</span></div></div></div></div><ol class="steps stepper"><li><b>Strategi:</b> persamaan (3) memuat x + y, yang nilainya sudah diketahui dari (1).</li><li><b>Substitusi (1) ke (3):</b> (x + y) + z = 9 → 5 + z = 9 → <b>z = 4</b>.</li><li><b>Substitusi z ke (2):</b> y + 4 = 7 → <b>y = 3</b>.</li><li><b>Substitusi y ke (1):</b> x + 3 = 5 → <b>x = 2</b>.</li><li><b>Cek:</b> (3) 2 + 3 + 4 = 9 ✓.</li></ol><p class="ans">Jawaban: HP = <b>{(2, 3, 4)}</b>.</p></div><div class="ex"><div class="exh">Contoh 5. Isolasi dua variabel<span class="tag">Standar</span></div><div class="soal">Tentukan HP dari:<div class="sysw"><div class="sys"><div><span>x − 2y = −1</span><span class="no">(1)</span></div><div><span>2y + z = 7</span><span class="no">(2)</span></div><div><span>x + y + 2z = 10</span><span class="no">(3)</span></div></div></div></div><ol class="steps stepper"><li><b>Strategi:</b> dari (1) isolasi x; dari (2) isolasi z. Lalu substitusikan keduanya ke (3).</li><li><b>Dari (1):</b> x = 2y − 1. <b>Dari (2):</b> z = 7 − 2y.</li><li><b>Substitusi ke (3):</b> (2y − 1) + y + 2(7 − 2y) = 10 → 2y − 1 + y + 14 − 4y = 10 → −y + 13 = 10 → <b>y = 3</b>.</li><li><b>Cari x:</b> x = 2(3) − 1 = <b>5</b>.</li><li><b>Cari z:</b> z = 7 − 2(3) = <b>1</b>.</li><li><b>Cek:</b> (1) 5 − 6 = −1 ✓; (2) 6 + 1 = 7 ✓; (3) 5 + 3 + 2 = 10 ✓.</li></ol><p class="ans">Jawaban: HP = <b>{(5, 3, 1)}</b>.</p></div><div class="ex"><div class="exh">Contoh 6. Substitusi menjadi SPLDV<span class="tag">Standar</span></div><div class="soal">Tentukan HP dari:<div class="sysw"><div class="sys"><div><span>x + y + z = 4</span><span class="no">(1)</span></div><div><span>2x − y + z = 8</span><span class="no">(2)</span></div><div><span>x + 3y − z = −4</span><span class="no">(3)</span></div></div></div></div><ol class="steps stepper"><li><b>Strategi:</b> isolasi z dari (1) (koefisien z = 1), lalu substitusikan ke (2) dan (3).</li><li><b>Dari (1):</b> z = 4 − x − y.</li><li><b>Ke (2):</b> 2x − y + (4 − x − y) = 8 → x − 2y + 4 = 8 → <b>x − 2y = 4</b>  (4)</li><li><b>Ke (3):</b> x + 3y − (4 − x − y) = −4 → 2x + 4y − 4 = −4 → 2x + 4y = 0 → <b>x + 2y = 0</b>  (5)</li><li><b>Jumlahkan (4) dan (5):</b> 2x = 4 → <b>x = 2</b>. Dari (5): 2 + 2y = 0 → <b>y = −1</b>.</li><li><b>Cari z:</b> z = 4 − 2 − (−1) = <b>3</b>.</li><li><b>Cek:</b> (2) 4 + 1 + 3 = 8 ✓; (3) 2 − 3 − 3 = −4 ✓.</li></ol><p class="ans">Jawaban: HP = <b>{(2, −1, 3)}</b>.</p></div><div class="pn"></div></section><section class="page" id="bab5"><h1>E. Metode Gabungan dan Jenis Penyelesaian</h1><p>Dalam praktik, cara paling efisien biasanya <b>gabungan</b>: eliminasi untuk mendapatkan SPLDV, lalu substitusi untuk mencari variabel terakhir.</p><table class="dt"><thead><tr><th>Ciri sistem</th><th>Metode yang disarankan</th></tr></thead><tbody><tr><td>Ada koefisien +1 dan −1 pada variabel yang sama</td><td>Eliminasi dengan penjumlahan</td></tr><tr><td>Ada variabel yang mudah diisolasi (koefisien 1)</td><td>Substitusi</td></tr><tr><td>Koefisien “rapi” semua tidak ada</td><td>Gabungan: eliminasi dua kali, lalu substitusi balik</td></tr><tr><td>Persamaan simetris (mis. 2x + y + z, x + 2y + z, x + y + 2z)</td><td>Jumlahkan ketiga persamaan terlebih dahulu</td></tr></tbody></table><div class="ex"><div class="exh">Contoh 7. Metode gabungan<span class="tag">Gabungan</span></div><div class="soal">Tentukan HP dari:<div class="sysw"><div class="sys"><div><span>3x + 2y + z = 14</span><span class="no">(1)</span></div><div><span>x + y − z = 3</span><span class="no">(2)</span></div><div><span>2x − y + 2z = 5</span><span class="no">(3)</span></div></div></div></div><ol class="steps stepper"><li><b>Strategi:</b> hilangkan z. Koefisien z: +1, −1, +2.</li><li><b>(1) + (2):</b> (3x + 2y + z) + (x + y − z) = 14 + 3 → <b>4x + 3y = 17</b>  (4)</li><li><b>2 × (2) + (3):</b> (2x + 2y − 2z) + (2x − y + 2z) = 6 + 5 → <b>4x + y = 11</b>  (5)</li><li><b>Eliminasi x:</b> (4) − (5): (4x + 3y) − (4x + y) = 17 − 11 → 2y = 6 → <b>y = 3</b>.</li><li><b>Substitusi:</b> dari (5): 4x + 3 = 11 → <b>x = 2</b>. Dari (2): 2 + 3 − z = 3 → <b>z = 2</b>.</li><li><b>Cek:</b> (1) 6 + 6 + 2 = 14 ✓; (3) 4 − 3 + 4 = 5 ✓.</li></ol><p class="ans">Jawaban: HP = <b>{(2, 3, 2)}</b>.</p></div><div class="ex"><div class="exh">Contoh 8. Tak hingga banyak penyelesaian<span class="tag">Jenis solusi</span></div><div class="soal">Tentukan HP dari:<div class="sysw"><div class="sys"><div><span>x + y + z = 6</span><span class="no">(1)</span></div><div><span>2x + 2y + 2z = 12</span><span class="no">(2)</span></div><div><span>x − y + z = 2</span><span class="no">(3)</span></div></div></div></div><ol class="steps stepper"><li><b>Amati:</b> persamaan (2) adalah 2 × persamaan (1).</li><li><b>Eliminasi:</b> (2) − 2 × (1): (2x + 2y + 2z) − (2x + 2y + 2z) = 12 − 12 → <b>0 = 0</b> (pernyataan benar, tidak memberi informasi baru).</li><li><b>Tersisa dua persamaan:</b> (1) dan (3). (1) − (3): 2y = 4 → <b>y = 2</b>; maka x + z = 4.</li><li><b>Misalkan z = t</b> (bilangan real sebarang). Maka x = 4 − t.</li><li><b>Cek:</b> untuk t = 1: (3, 2, 1) memenuhi (1) 6 ✓ dan (3) 3 − 2 + 1 = 2 ✓.</li></ol><p class="ans">Jawaban: Tak hingga banyak penyelesaian: HP = <b>{(4 − t, 2, t) | t bilangan real}</b>.</p></div><div class="ex"><div class="exh">Contoh 9. Tidak ada penyelesaian<span class="tag">Jenis solusi</span></div><div class="soal">Tentukan HP dari:<div class="sysw"><div class="sys"><div><span>x + y + z = 6</span><span class="no">(1)</span></div><div><span>2x + 2y + 2z = 10</span><span class="no">(2)</span></div><div><span>x − y = 1</span><span class="no">(3)</span></div></div></div></div><ol class="steps stepper"><li><b>Amati:</b> koefisien (2) adalah 2 × koefisien (1), tetapi konstantanya bukan 2 × 6.</li><li><b>Eliminasi:</b> (2) − 2 × (1): 0 = 10 − 12 → <b>0 = −2</b> (pernyataan salah).</li><li><b>Kesimpulan:</b> persamaan (1) dan (2) saling bertentangan, sehingga tidak ada tripel yang memenuhi keduanya.</li></ol><p class="ans">Jawaban: HP = <b>∅</b> (tidak ada penyelesaian).</p></div><div class="pn"></div></section><section class="page" id="bab6"><h1>F. Penerapan SPLTV dalam Kasus</h1><h2 id="h11">Langkah Pemodelan (5M)</h2><ol><li><b>Membaca</b> soal dan menandai apa yang dicari.</li><li><b>Memisalkan</b> tiga besaran yang dicari dengan x, y, z (tulis satuannya).</li><li><b>Memodelkan</b> tiap informasi menjadi satu persamaan; pastikan terbentuk tiga persamaan.</li><li><b>Menyelesaikan</b> SPLTV (eliminasi/substitusi/gabungan).</li><li><b>Menafsirkan dan memeriksa</b>: apakah hasil masuk akal (tidak negatif untuk harga/umur, dsb.) dan memenuhi semua informasi? Tulis jawaban dengan kalimat dan satuan.</li></ol><div class="ex"><div class="exh">Contoh 10. Belanja di kantin pesantren<span class="tag">Kasus</span></div><div class="soal">Tiga santri berbelanja di kantin. Ani membeli 2 roti, 1 susu, dan 1 pisang dengan harga Rp15.000. Budi membeli 1 roti, 2 susu, dan 1 pisang dengan harga Rp17.000. Citra membeli 1 roti, 1 susu, dan 2 pisang dengan harga Rp16.000. Tentukan harga masing-masing.</div><ol class="steps stepper"><li><b>Memisalkan</b> (dalam ribu rupiah): x = harga 1 roti, y = harga 1 susu, z = harga 1 pisang.</li><li><b>Model:</b><div class="sysw"><div class="sys"><div><span>2x + y + z = 15</span><span class="no">(1)</span></div><div><span>x + 2y + z = 17</span><span class="no">(2)</span></div><div><span>x + y + 2z = 16</span><span class="no">(3)</span></div></div></div></li><li><b>Strategi:</b> sistem ini simetris. Jumlahkan ketiga persamaan: 4x + 4y + 4z = 48 → <b>x + y + z = 12</b>  (4).</li><li><b>(4) − (1):</b> (x + y + z) − (2x + y + z) = 12 − 15 → −x = −3 → <b>x = 3</b>.</li><li><b>(4) − (2):</b> −y = 12 − 17 → <b>y = 5</b>. <b>(4) − (3):</b> −z = 12 − 16 → <b>z = 4</b>.</li><li><b>Memeriksa:</b> Ani: 2(3) + 5 + 4 = 15 ✓; Budi: 3 + 10 + 4 = 17 ✓; Citra: 3 + 5 + 8 = 16 ✓.</li></ol><p class="ans">Jawaban: roti <b>Rp3.000</b>, susu <b>Rp5.000</b>, pisang <b>Rp4.000</b>.</p></div><div class="ex"><div class="exh">Contoh 11. Setoran hafalan tiga hari<span class="tag">Kasus</span></div><div class="soal">Selama tiga hari, Fauzan menyetor hafalan sebanyak 30 ayat. Setoran hari kedua 4 ayat lebih banyak daripada hari pertama. Setoran hari ketiga sama dengan rata-rata setoran hari pertama dan hari kedua. Tentukan setoran tiap hari.</div><ol class="steps stepper"><li><b>Memisalkan:</b> x, y, z = banyak ayat pada hari ke-1, ke-2, dan ke-3.</li><li><b>Model:</b><div class="sysw"><div class="sys"><div><span>x + y + z = 30</span><span class="no">(1)</span></div><div><span>−x + y = 4</span><span class="no">(2)</span></div><div><span>x + y − 2z = 0</span><span class="no">(3)</span></div></div></div></li><li><b>Catatan model:</b> “z sama dengan rata-rata x dan y” berarti z = (x + y)/2, atau 2z = x + y, atau x + y − 2z = 0.</li><li><b>Substitusi:</b> dari (3): x + y = 2z. Masukkan ke (1): 2z + z = 30 → <b>z = 10</b>.</li><li><b>Maka</b> x + y = 20. Dengan (2) y = x + 4: x + (x + 4) = 20 → 2x = 16 → <b>x = 8</b>, <b>y = 12</b>.</li><li><b>Memeriksa:</b> 8 + 12 + 10 = 30 ✓; 12 − 8 = 4 ✓; rata-rata (8 + 12)/2 = 10 ✓.</li></ol><p class="ans">Jawaban: hari ke-1 <b>8 ayat</b>, hari ke-2 <b>12 ayat</b>, hari ke-3 <b>10 ayat</b>.</p></div><div class="ex"><div class="exh">Contoh 12. Merchandise madrasah<span class="tag">Kasus</span></div><div class="soal">Koperasi madrasah menjual kaos, topi, dan tumbler. Pembeli pertama membayar Rp270.000 untuk 3 kaos, 2 topi, dan 1 tumbler. Pembeli kedua membayar Rp225.000 untuk 2 kaos, 1 topi, dan 2 tumbler. Pembeli ketiga membayar Rp215.000 untuk 1 kaos, 3 topi, dan 2 tumbler. Tentukan harga tiap barang.</div><ol class="steps stepper"><li><b>Memisalkan</b> (ribu rupiah): x = harga kaos, y = harga topi, z = harga tumbler.</li><li><b>Model:</b><div class="sysw"><div class="sys"><div><span>3x + 2y + z = 270</span><span class="no">(1)</span></div><div><span>2x + y + 2z = 225</span><span class="no">(2)</span></div><div><span>x + 3y + 2z = 215</span><span class="no">(3)</span></div></div></div></li><li><b>Strategi:</b> hilangkan x (koefisien x pada (3) adalah 1, mudah).</li><li><b>(1) − 3 × (3):</b> (3x + 2y + z) − (3x + 9y + 6z) = 270 − 645 → −7y − 5z = −375 → <b>7y + 5z = 375</b>  (4)</li><li><b>(2) − 2 × (3):</b> (2x + y + 2z) − (2x + 6y + 4z) = 225 − 430 → −5y − 2z = −205 → <b>5y + 2z = 205</b>  (5)</li><li><b>SPLDV (4) dan (5):</b> kalikan (4) dengan 2 dan (5) dengan 5: 14y + 10z = 750 dan 25y + 10z = 1.025. Kurangkan: 11y = 275 → <b>y = 25</b>.</li><li><b>Cari z:</b> dari (5): 125 + 2z = 205 → <b>z = 40</b>. <b>Cari x:</b> dari (3): x + 75 + 80 = 215 → <b>x = 60</b>.</li><li><b>Memeriksa:</b> (1) 180 + 50 + 40 = 270 ✓; (2) 120 + 25 + 80 = 225 ✓.</li></ol><p class="ans">Jawaban: kaos <b>Rp60.000</b>, topi <b>Rp25.000</b>, tumbler <b>Rp40.000</b>.</p></div><div class="ex"><div class="exh">Contoh 13. Jumlah santri tiga asrama<span class="tag">Kasus</span></div><div class="soal">Jumlah santri di Asrama A, B, dan C adalah 300 orang. Asrama B memiliki 20 santri lebih banyak daripada Asrama A. Jumlah santri Asrama A dan B dikurangi jumlah santri Asrama C sama dengan 100. Tentukan jumlah santri tiap asrama.</div><ol class="steps stepper"><li><b>Memisalkan:</b> x, y, z = jumlah santri Asrama A, B, C.</li><li><b>Model:</b><div class="sysw"><div class="sys"><div><span>x + y + z = 300</span><span class="no">(1)</span></div><div><span>−x + y = 20</span><span class="no">(2)</span></div><div><span>x + y − z = 100</span><span class="no">(3)</span></div></div></div></li><li><b>Eliminasi z:</b> (1) + (3): 2x + 2y = 400 → <b>x + y = 200</b>  (4).</li><li><b>Eliminasi x:</b> (4) + (2): (x + y) + (−x + y) = 200 + 20 → 2y = 220 → <b>y = 110</b>.</li><li><b>Cari x:</b> x = 200 − 110 = <b>90</b>. <b>Cari z:</b> z = 300 − 200 = <b>100</b>.</li><li><b>Memeriksa:</b> B − A = 110 − 90 = 20 ✓; A + B − C = 200 − 100 = 100 ✓.</li></ol><p class="ans">Jawaban: Asrama A <b>90</b>, Asrama B <b>110</b>, Asrama C <b>100</b> santri.</p></div><div class="ex"><div class="exh">Contoh 14. Nilai tiga mata pelajaran<span class="tag">Kasus</span></div><div class="soal">Jumlah nilai Rafi pada tiga mata pelajaran (Matematika, Fiqih, Bahasa Arab) adalah 255. Nilai Matematika 5 lebih tinggi daripada nilai Fiqih. Jumlah nilai Matematika dan Bahasa Arab adalah 175. Tentukan nilai tiap mata pelajaran.</div><ol class="steps stepper"><li><b>Memisalkan:</b> x = nilai Matematika, y = nilai Fiqih, z = nilai Bahasa Arab.</li><li><b>Model:</b><div class="sysw"><div class="sys"><div><span>x + y + z = 255</span><span class="no">(1)</span></div><div><span>x − y = 5</span><span class="no">(2)</span></div><div><span>x + z = 175</span><span class="no">(3)</span></div></div></div></li><li><b>Isolasi:</b> dari (2): y = x − 5. Dari (3): z = 175 − x.</li><li><b>Substitusi ke (1):</b> x + (x − 5) + (175 − x) = 255 → x + 170 = 255 → <b>x = 85</b>.</li><li><b>Maka</b> y = 85 − 5 = <b>80</b> dan z = 175 − 85 = <b>90</b>.</li><li><b>Memeriksa:</b> 85 + 80 + 90 = 255 ✓; 85 − 80 = 5 ✓; 85 + 90 = 175 ✓. Semua nilai masuk akal (0–100).</li></ol><p class="ans">Jawaban: Matematika <b>85</b>, Fiqih <b>80</b>, Bahasa Arab <b>90</b>.</p></div><div class="pn"></div></section><section class="page" id="bab7"><h1>G. Latihan Interaktif: Soal Biasa</h1><div class="tally" id="tallyB">Skor sesi: <b>0</b> dari 8 soal benar</div><p>Selesaikan di kertas coretan (boleh memilih eliminasi, substitusi, atau gabungan), lalu isi jawaban dan ketuk <b>Periksa</b>. Skor tidak disimpan.</p><div class="lat" data-ans="1,2,3" data-id="B1"><p class="qt"><b>B1.</b> Tentukan himpunan penyelesaian dari sistem berikut:</p><div class="sysw"><div class="sys"><div><span>x + y + z = 6</span><span class="no">(1)</span></div><div><span>x − y + z = 2</span><span class="no">(2)</span></div><div><span>2x + y − z = 1</span><span class="no">(3)</span></div></div></div><div class="ansrow"><label>x =<input autocomplete="off" inputmode="decimal" type="text"/></label><label>y =<input autocomplete="off" inputmode="decimal" type="text"/></label><label>z =<input autocomplete="off" inputmode="decimal" type="text"/></label></div><div class="btns" style="display:flex;gap:8px;flex-wrap:wrap"><button class="qbtn chk" type="button">Periksa</button><button class="qbtn sec shw" type="button">Lihat pembahasan</button></div><div class="fb"></div><div class="pemb" hidden=""><b>Pembahasan</b><ol><li>(1) − (2): 2y = 4 → y = 2.</li><li>(1) + (3): 3x + 2y = 7 → 3x + 4 = 7 → x = 1.</li><li>Dari (1): z = 6 − 1 − 2 = 3.</li><li>Cek (3): 2(1) + 2 − 3 = 1 ✓.</li></ol><b>Jawaban: x = 1, y = 2, z = 3</b></div></div><div class="lat" data-ans="2,1,4" data-id="B2"><p class="qt"><b>B2.</b> Tentukan himpunan penyelesaian dari sistem berikut:</p><div class="sysw"><div class="sys"><div><span>2x + y + z = 9</span><span class="no">(1)</span></div><div><span>x − y + z = 5</span><span class="no">(2)</span></div><div><span>x + y − z = −1</span><span class="no">(3)</span></div></div></div><div class="ansrow"><label>x =<input autocomplete="off" inputmode="decimal" type="text"/></label><label>y =<input autocomplete="off" inputmode="decimal" type="text"/></label><label>z =<input autocomplete="off" inputmode="decimal" type="text"/></label></div><div class="btns" style="display:flex;gap:8px;flex-wrap:wrap"><button class="qbtn chk" type="button">Periksa</button><button class="qbtn sec shw" type="button">Lihat pembahasan</button></div><div class="fb"></div><div class="pemb" hidden=""><b>Pembahasan</b><ol><li>(2) + (3): 2x = 4 → x = 2.</li><li>(1) + (2): 3x + 2z = 14 → 6 + 2z = 14 → z = 4.</li><li>Dari (3): 2 + y − 4 = −1 → y = 1.</li><li>Cek (1): 4 + 1 + 4 = 9 ✓.</li></ol><b>Jawaban: x = 2, y = 1, z = 4</b></div></div><div class="lat" data-ans="3,-2,1" data-id="B3"><p class="qt"><b>B3.</b> Tentukan himpunan penyelesaian dari sistem berikut:</p><div class="sysw"><div class="sys"><div><span>x + 2y + 3z = 2</span><span class="no">(1)</span></div><div><span>2x + y − z = 3</span><span class="no">(2)</span></div><div><span>3x − y + 2z = 13</span><span class="no">(3)</span></div></div></div><div class="ansrow"><label>x =<input autocomplete="off" inputmode="decimal" type="text"/></label><label>y =<input autocomplete="off" inputmode="decimal" type="text"/></label><label>z =<input autocomplete="off" inputmode="decimal" type="text"/></label></div><div class="btns" style="display:flex;gap:8px;flex-wrap:wrap"><button class="qbtn chk" type="button">Periksa</button><button class="qbtn sec shw" type="button">Lihat pembahasan</button></div><div class="fb"></div><div class="pemb" hidden=""><b>Pembahasan</b><ol><li>Hilangkan y: (2) + (3): 5x + z = 16  (4).</li><li>(1) − 2 × (2): −3x + 5z = −4  (5).</li><li>Dari (4): z = 16 − 5x. Ke (5): −3x + 80 − 25x = −4 → −28x = −84 → x = 3, maka z = 1.</li><li>Dari (2): 6 + y − 1 = 3 → y = −2.</li><li>Cek (1): 3 − 4 + 3 = 2 ✓.</li></ol><b>Jawaban: x = 3, y = −2, z = 1</b></div></div><div class="lat" data-ans="-1,4,2" data-id="B4"><p class="qt"><b>B4.</b> Tentukan himpunan penyelesaian dari sistem berikut:</p><div class="sysw"><div class="sys"><div><span>x + y + z = 5</span><span class="no">(1)</span></div><div><span>2x − y + z = −4</span><span class="no">(2)</span></div><div><span>x + 2y − z = 5</span><span class="no">(3)</span></div></div></div><div class="ansrow"><label>x =<input autocomplete="off" inputmode="decimal" type="text"/></label><label>y =<input autocomplete="off" inputmode="decimal" type="text"/></label><label>z =<input autocomplete="off" inputmode="decimal" type="text"/></label></div><div class="btns" style="display:flex;gap:8px;flex-wrap:wrap"><button class="qbtn chk" type="button">Periksa</button><button class="qbtn sec shw" type="button">Lihat pembahasan</button></div><div class="fb"></div><div class="pemb" hidden=""><b>Pembahasan</b><ol><li>(1) + (3): 2x + 3y = 10  (4). (2) + (3): 3x + y = 1  (5).</li><li>Dari (5): y = 1 − 3x. Ke (4): 2x + 3 − 9x = 10 → −7x = 7 → x = −1, y = 4.</li><li>Dari (1): z = 5 − (−1) − 4 = 2.</li><li>Cek (2): −2 − 4 + 2 = −4 ✓.</li></ol><b>Jawaban: x = −1, y = 4, z = 2</b></div></div><div class="lat" data-ans="5,2,-3" data-id="B5"><p class="qt"><b>B5.</b> Tentukan himpunan penyelesaian dari sistem berikut:</p><div class="sysw"><div class="sys"><div><span>x − y + z = 0</span><span class="no">(1)</span></div><div><span>2x + y + z = 9</span><span class="no">(2)</span></div><div><span>x + y − 2z = 13</span><span class="no">(3)</span></div></div></div><div class="ansrow"><label>x =<input autocomplete="off" inputmode="decimal" type="text"/></label><label>y =<input autocomplete="off" inputmode="decimal" type="text"/></label><label>z =<input autocomplete="off" inputmode="decimal" type="text"/></label></div><div class="btns" style="display:flex;gap:8px;flex-wrap:wrap"><button class="qbtn chk" type="button">Periksa</button><button class="qbtn sec shw" type="button">Lihat pembahasan</button></div><div class="fb"></div><div class="pemb" hidden=""><b>Pembahasan</b><ol><li>(1) + (3): 2x − z = 13  (4). (1) + (2): 3x + 2z = 9  (5).</li><li>Dari (4): z = 2x − 13. Ke (5): 3x + 4x − 26 = 9 → 7x = 35 → x = 5, z = −3.</li><li>Dari (1): y = x + z = 2.</li><li>Cek (3): 5 + 2 + 6 = 13 ✓.</li></ol><b>Jawaban: x = 5, y = 2, z = −3</b></div></div><div class="lat" data-ans="2,3,5" data-id="B6"><p class="qt"><b>B6.</b> Tentukan himpunan penyelesaian dari sistem berikut:</p><div class="sysw"><div class="sys"><div><span>3x + y − z = 4</span><span class="no">(1)</span></div><div><span>x + 2y + z = 13</span><span class="no">(2)</span></div><div><span>2x − y + 3z = 16</span><span class="no">(3)</span></div></div></div><div class="ansrow"><label>x =<input autocomplete="off" inputmode="decimal" type="text"/></label><label>y =<input autocomplete="off" inputmode="decimal" type="text"/></label><label>z =<input autocomplete="off" inputmode="decimal" type="text"/></label></div><div class="btns" style="display:flex;gap:8px;flex-wrap:wrap"><button class="qbtn chk" type="button">Periksa</button><button class="qbtn sec shw" type="button">Lihat pembahasan</button></div><div class="fb"></div><div class="pemb" hidden=""><b>Pembahasan</b><ol><li>(1) + (2): 4x + 3y = 17  (4).</li><li>(3) − 3 × (2): −x − 7y = −23 → x + 7y = 23  (5).</li><li>4 × (5) − (4): 25y = 75 → y = 3; x = 23 − 21 = 2.</li><li>Dari (1): 6 + 3 − z = 4 → z = 5.</li><li>Cek (3): 4 − 3 + 15 = 16 ✓.</li></ol><b>Jawaban: x = 2, y = 3, z = 5</b></div></div><div class="lat" data-ans="3,4,5" data-id="B7"><p class="qt"><b>B7.</b> Tentukan himpunan penyelesaian dari sistem berikut:</p><div class="sysw"><div class="sys"><div><span>x + y = 7</span><span class="no">(1)</span></div><div><span>y + z = 9</span><span class="no">(2)</span></div><div><span>x + z = 8</span><span class="no">(3)</span></div></div></div><div class="ansrow"><label>x =<input autocomplete="off" inputmode="decimal" type="text"/></label><label>y =<input autocomplete="off" inputmode="decimal" type="text"/></label><label>z =<input autocomplete="off" inputmode="decimal" type="text"/></label></div><div class="btns" style="display:flex;gap:8px;flex-wrap:wrap"><button class="qbtn chk" type="button">Periksa</button><button class="qbtn sec shw" type="button">Lihat pembahasan</button></div><div class="fb"></div><div class="pemb" hidden=""><b>Pembahasan</b><ol><li>Jumlahkan ketiganya: 2(x + y + z) = 24 → x + y + z = 12.</li><li>z = 12 − 7 = 5; x = 12 − 9 = 3; y = 12 − 8 = 4.</li><li>Cek: 3 + 4 = 7 ✓; 4 + 5 = 9 ✓; 3 + 5 = 8 ✓.</li></ol><b>Jawaban: x = 3, y = 4, z = 5</b></div></div><div class="lat" data-ans="4,1,2" data-id="B8"><p class="qt"><b>B8.</b> Tentukan himpunan penyelesaian dari sistem berikut:</p><div class="sysw"><div class="sys"><div><span>2x + 3y + 4z = 19</span><span class="no">(1)</span></div><div><span>x − 2y + z = 4</span><span class="no">(2)</span></div><div><span>3x + y − 2z = 9</span><span class="no">(3)</span></div></div></div><div class="ansrow"><label>x =<input autocomplete="off" inputmode="decimal" type="text"/></label><label>y =<input autocomplete="off" inputmode="decimal" type="text"/></label><label>z =<input autocomplete="off" inputmode="decimal" type="text"/></label></div><div class="btns" style="display:flex;gap:8px;flex-wrap:wrap"><button class="qbtn chk" type="button">Periksa</button><button class="qbtn sec shw" type="button">Lihat pembahasan</button></div><div class="fb"></div><div class="pemb" hidden=""><b>Pembahasan</b><ol><li>Hilangkan z: (1) + 2 × (3): 8x + 5y = 37  (4). 2 × (2) + (3): 5x − 3y = 17  (5).</li><li>3 × (4) + 5 × (5): 24x + 15y + 25x − 15y = 111 + 85 → 49x = 196 → x = 4.</li><li>Dari (4): 32 + 5y = 37 → y = 1. Dari (2): 4 − 2 + z = 4 → z = 2.</li><li>Cek (1): 8 + 3 + 8 = 19 ✓.</li></ol><b>Jawaban: x = 4, y = 1, z = 2</b></div></div><div class="pn"></div></section><section class="page" id="bab8"><h1>H. Latihan Interaktif: Soal Penerapan</h1><div class="tally" id="tallyP">Skor sesi: <b>0</b> dari 6 soal benar</div><p>Gunakan langkah <b>5M</b>: Membaca, Memisalkan, Memodelkan, Menyelesaikan, Menafsirkan dan memeriksa. Isi nilai pada kolom lalu ketuk <b>Periksa</b>.</p><div class="lat" data-ans="2,3,1" data-id="P1"><p class="qt"><b>P1.</b> Di toko alat tulis, Ali membeli 3 pensil, 2 pulpen, dan 1 penghapus seharga Rp13.000. Budi membeli 1 pensil, 3 pulpen, dan 2 penghapus seharga Rp13.000. Cici membeli 2 pensil, 1 pulpen, dan 3 penghapus seharga Rp10.000. Tentukan harga satuan tiap barang (dalam ribu rupiah).</p><div class="ansrow"><label>Harga pensil (ribu Rp)<input autocomplete="off" inputmode="decimal" type="text"/></label><label>Harga pulpen (ribu Rp)<input autocomplete="off" inputmode="decimal" type="text"/></label><label>Harga penghapus (ribu Rp)<input autocomplete="off" inputmode="decimal" type="text"/></label></div><div class="btns" style="display:flex;gap:8px;flex-wrap:wrap"><button class="qbtn chk" type="button">Periksa</button><button class="qbtn sec shw" type="button">Lihat pembahasan</button></div><div class="fb"></div><div class="pemb" hidden=""><b>Pembahasan</b><ol><li>Misal x = pensil, y = pulpen, z = penghapus (ribu Rp). Model: 3x + 2y + z = 13 (1); x + 3y + 2z = 13 (2); 2x + y + 3z = 10 (3).</li><li>Hilangkan z: 2 × (1) − (2): 5x + y = 13 (4). 3 × (1) − (3): 7x + 5y = 29 (5).</li><li>5 × (4) − (5): 18x = 36 → x = 2. Dari (4): y = 3. Dari (1): z = 13 − 6 − 6 = 1.</li><li>Cek (3): 4 + 3 + 3 = 10 ✓.</li></ol><b>Jawaban: pensil Rp2.000, pulpen Rp3.000, penghapus Rp1.000</b></div></div><div class="lat" data-ans="15,18,17" data-id="P2"><p class="qt"><b>P2.</b> Panitia membuat paket sembako untuk dhuafa. Paket A berisi 2 kg beras, 1 liter minyak, dan 1 kg gula seharga Rp65.000. Paket B berisi 1 kg beras, 2 liter minyak, dan 2 kg gula seharga Rp85.000. Paket C berisi 3 kg beras, 1 liter minyak, dan 2 kg gula seharga Rp97.000. Tentukan harga beras per kg, minyak per liter, dan gula per kg (dalam ribu rupiah).</p><div class="ansrow"><label>Beras per kg (ribu Rp)<input autocomplete="off" inputmode="decimal" type="text"/></label><label>Minyak per liter (ribu Rp)<input autocomplete="off" inputmode="decimal" type="text"/></label><label>Gula per kg (ribu Rp)<input autocomplete="off" inputmode="decimal" type="text"/></label></div><div class="btns" style="display:flex;gap:8px;flex-wrap:wrap"><button class="qbtn chk" type="button">Periksa</button><button class="qbtn sec shw" type="button">Lihat pembahasan</button></div><div class="fb"></div><div class="pemb" hidden=""><b>Pembahasan</b><ol><li>Misal x = beras, y = minyak, z = gula. Model: 2x + y + z = 65 (1); x + 2y + 2z = 85 (2); 3x + y + 2z = 97 (3).</li><li>(3) − (1): x + z = 32 (4). (2) − 2 × (1): −3x = −45 → x = 15.</li><li>Dari (4): z = 17. Dari (1): y = 65 − 30 − 17 = 18.</li><li>Cek (2): 15 + 36 + 34 = 85 ✓.</li></ol><b>Jawaban: beras Rp15.000, minyak Rp18.000, gula Rp17.000</b></div></div><div class="lat" data-ans="16,14,15" data-id="P3"><p class="qt"><b>P3.</b> Jumlah umur Rafi, Umar, dan Zaki adalah 45 tahun. Umur Rafi 2 tahun lebih tua daripada Umar. Umur Zaki sama dengan rata-rata umur Rafi dan Umar. Tentukan umur masing-masing.</p><div class="ansrow"><label>Umur Rafi (tahun)<input autocomplete="off" inputmode="decimal" type="text"/></label><label>Umur Umar (tahun)<input autocomplete="off" inputmode="decimal" type="text"/></label><label>Umur Zaki (tahun)<input autocomplete="off" inputmode="decimal" type="text"/></label></div><div class="btns" style="display:flex;gap:8px;flex-wrap:wrap"><button class="qbtn chk" type="button">Periksa</button><button class="qbtn sec shw" type="button">Lihat pembahasan</button></div><div class="fb"></div><div class="pemb" hidden=""><b>Pembahasan</b><ol><li>Misal x = Rafi, y = Umar, z = Zaki. Model: x + y + z = 45; x − y = 2; x + y − 2z = 0.</li><li>Dari persamaan ketiga: x + y = 2z. Ke persamaan pertama: 3z = 45 → z = 15.</li><li>x + y = 30 dan x − y = 2 → x = 16, y = 14.</li><li>Cek: rata-rata 16 dan 14 = 15 ✓.</li></ol><b>Jawaban: Rafi 16, Umar 14, Zaki 15 tahun</b></div></div><div class="lat" data-ans="20,10,5" data-id="P4"><p class="qt"><b>P4.</b> Pada bazar sekolah, rombongan pertama membeli 2 tiket dewasa, 3 tiket pelajar, dan 1 tiket anak seharga Rp75.000. Rombongan kedua membeli 1 tiket dewasa, 2 tiket pelajar, dan 4 tiket anak seharga Rp60.000. Rombongan ketiga membeli 3 tiket dewasa, 1 tiket pelajar, dan 2 tiket anak seharga Rp80.000. Tentukan harga tiap jenis tiket (dalam ribu rupiah).</p><div class="ansrow"><label>Tiket dewasa (ribu Rp)<input autocomplete="off" inputmode="decimal" type="text"/></label><label>Tiket pelajar (ribu Rp)<input autocomplete="off" inputmode="decimal" type="text"/></label><label>Tiket anak (ribu Rp)<input autocomplete="off" inputmode="decimal" type="text"/></label></div><div class="btns" style="display:flex;gap:8px;flex-wrap:wrap"><button class="qbtn chk" type="button">Periksa</button><button class="qbtn sec shw" type="button">Lihat pembahasan</button></div><div class="fb"></div><div class="pemb" hidden=""><b>Pembahasan</b><ol><li>Misal x = dewasa, y = pelajar, z = anak. Model: 2x + 3y + z = 75 (1); x + 2y + 4z = 60 (2); 3x + y + 2z = 80 (3).</li><li>Hilangkan z: 2 × (1) − (3): x + 5y = 70 (4). 4 × (1) − (2): 7x + 10y = 240 (5).</li><li>(5) − 2 × (4): 5x = 100 → x = 20. Dari (4): y = 10. Dari (1): z = 75 − 40 − 30 = 5.</li><li>Cek (2): 20 + 20 + 20 = 60 ✓.</li></ol><b>Jawaban: dewasa Rp20.000, pelajar Rp10.000, anak Rp5.000</b></div></div><div class="lat" data-ans="600,500,400" data-id="P5"><p class="qt"><b>P5.</b> Hasil infak tiga kotak (A, B, C) dalam sebulan berjumlah Rp1.500.000. Kotak A lebih banyak Rp100.000 daripada kotak B, dan Rp200.000 lebih banyak daripada kotak C. Tentukan hasil tiap kotak (dalam ribu rupiah).</p><div class="ansrow"><label>Kotak A (ribu Rp)<input autocomplete="off" inputmode="decimal" type="text"/></label><label>Kotak B (ribu Rp)<input autocomplete="off" inputmode="decimal" type="text"/></label><label>Kotak C (ribu Rp)<input autocomplete="off" inputmode="decimal" type="text"/></label></div><div class="btns" style="display:flex;gap:8px;flex-wrap:wrap"><button class="qbtn chk" type="button">Periksa</button><button class="qbtn sec shw" type="button">Lihat pembahasan</button></div><div class="fb"></div><div class="pemb" hidden=""><b>Pembahasan</b><ol><li>Misal x, y, z = hasil kotak A, B, C. Model: x + y + z = 1.500; x − y = 100; x − z = 200.</li><li>Isolasi: y = x − 100 dan z = x − 200.</li><li>Substitusi: x + (x − 100) + (x − 200) = 1.500 → 3x = 1.800 → x = 600.</li><li>y = 500 dan z = 400. Cek jumlah: 600 + 500 + 400 = 1.500 ✓.</li></ol><b>Jawaban: A Rp600.000, B Rp500.000, C Rp400.000</b></div></div><div class="lat" data-ans="10,12,14" data-id="P6"><p class="qt"><b>P6.</b> Keliling sebuah segitiga adalah 36 cm. Sisi kedua 2 cm lebih panjang daripada sisi pertama. Dua kali sisi pertama dikurangi sisi ketiga sama dengan 6 cm. Tentukan panjang ketiga sisi.</p><div class="ansrow"><label>Sisi pertama (cm)<input autocomplete="off" inputmode="decimal" type="text"/></label><label>Sisi kedua (cm)<input autocomplete="off" inputmode="decimal" type="text"/></label><label>Sisi ketiga (cm)<input autocomplete="off" inputmode="decimal" type="text"/></label></div><div class="btns" style="display:flex;gap:8px;flex-wrap:wrap"><button class="qbtn chk" type="button">Periksa</button><button class="qbtn sec shw" type="button">Lihat pembahasan</button></div><div class="fb"></div><div class="pemb" hidden=""><b>Pembahasan</b><ol><li>Misal x, y, z = sisi pertama, kedua, ketiga. Model: x + y + z = 36; y = x + 2; 2x − z = 6.</li><li>Dari persamaan kedua dan ketiga: y = x + 2 dan z = 2x − 6.</li><li>Substitusi: x + (x + 2) + (2x − 6) = 36 → 4x − 4 = 36 → x = 10.</li><li>y = 12 dan z = 14. Cek ketaksamaan segitiga: 10 + 12 &gt; 14 ✓.</li></ol><b>Jawaban: 10 cm, 12 cm, 14 cm</b></div></div><div class="pn"></div></section><section class="page" id="bab9"><h1>I. Penyelesai dan Pengecek SPLTV</h1><p>Masukkan koefisien tiga persamaan <b>ax + by + cz = d</b>. Alat ini menentukan jenis penyelesaian dan memeriksa hasilnya. Gunakan untuk <b>mengecek jawaban</b> setelah mengerjakan sendiri. Tersedia contoh yang dapat dimuat dengan satu ketukan.</p><div class="solver"><div class="row"><span>x</span><span>y</span><span>z</span><span>= konstanta</span></div><div id="srows"><div class="row"><input inputmode="decimal" placeholder="a1"/><input inputmode="decimal" placeholder="b1"/><input inputmode="decimal" placeholder="c1"/><input inputmode="decimal" placeholder="d1"/></div><div class="row"><input inputmode="decimal" placeholder="a2"/><input inputmode="decimal" placeholder="b2"/><input inputmode="decimal" placeholder="c2"/><input inputmode="decimal" placeholder="d2"/></div><div class="row"><input inputmode="decimal" placeholder="a3"/><input inputmode="decimal" placeholder="b3"/><input inputmode="decimal" placeholder="c3"/><input inputmode="decimal" placeholder="d3"/></div></div><div class="btns"><button class="qbtn" id="sgo" type="button">Selesaikan</button><button class="qbtn sec" data-ex="1" type="button">Contoh: tunggal</button><button class="qbtn sec" data-ex="2" type="button">Contoh: tak hingga</button><button class="qbtn sec" data-ex="3" type="button">Contoh: tidak ada</button></div><output id="sout"></output></div><div class="pn"></div></section><section class="page" id="bab10"><h1>J. Rangkuman dan Refleksi</h1><table class="dt"><thead><tr><th>Konsep</th><th>Inti</th></tr></thead><tbody><tr><td>SPLTV</td><td>Tiga persamaan linear, tiga variabel; penyelesaian berupa tripel (x, y, z)</td></tr><tr><td>Eliminasi</td><td>Samakan koefisien, jumlahkan/kurangkan; ulangi pada pasangan lain → SPLDV</td></tr><tr><td>Substitusi</td><td>Isolasi satu variabel, gantikan pada persamaan lain</td></tr><tr><td>Gabungan</td><td>Eliminasi untuk SPLDV, substitusi untuk variabel terakhir</td></tr><tr><td>Jenis solusi</td><td>Tunggal / tak hingga (muncul 0 = 0) / tidak ada (muncul 0 = k, k ≠ 0)</td></tr><tr><td>Penerapan</td><td>Misalkan → model → selesaikan → tafsirkan dan cek (5M)</td></tr></tbody></table><div class="warn"><b>Kesalahan yang sering terjadi</b><br/>• Mengalikan hanya sebagian suku persamaan (harus <b>semua suku, termasuk konstanta</b>).<br/>• Salah tanda saat mengurangkan suku negatif, misalnya (−y) − (−y).<br/>• Mengeliminasi variabel yang <b>berbeda</b> pada dua pasangan sehingga SPLDV tidak memiliki variabel yang sama.<br/>• Berhenti setelah mendapat dua variabel dan lupa mencari variabel ketiga.<br/>• Tidak mengecek hasil pada ketiga persamaan.<br/>• Menjawab tanpa satuan atau tanpa kalimat penafsiran pada soal cerita.</div><h2 id="h12">Refleksi</h2><ul><li>Metode mana yang paling cocok untuk gayaku belajar, dan mengapa?</li><li>Langkah mana yang paling sering membuatku salah hitung? Apa strategi perbaikannya?</li><li>Di mana aku menemukan masalah dengan tiga besaran yang saling berkaitan dalam kehidupan sehari-hari?</li></ul><ul><li>Guru: apakah ≥ 75% peserta didik mencapai tujuan? Soal penerapan mana yang paling sulit?</li><li>Remedial: kembali ke SPLDV dan gunakan kartu langkah; pengayaan: SPLTV pecahan atau dengan parameter.</li></ul><div class="pn"></div></section><footer>Modul Interaktif SPLTV - SMA Takhassus Al-Qur’an</footer></main><script>(function(){
+var pages=[].slice.call(document.querySelectorAll('.page')),ids=pages.map(function(p){return p.id});
+function show(pid,anchor,nopush){
+ var pg=document.getElementById(pid)||pages[0];
+ pages.forEach(function(p){p.classList.toggle('show',p===pg)});
+ [].forEach.call(document.querySelectorAll('#side a'),function(a){a.classList.remove('on','cur')});
+ [].forEach.call(document.querySelectorAll('.sub'),function(s){s.classList.toggle('open',s.getAttribute('data-for')===pg.id)});
+ var m=document.querySelector('a.m1[data-p="'+pg.id+'"]');if(m)m.classList.add('on');
+ var t=anchor&&document.getElementById(anchor);
+ if(anchor){var c=document.querySelector('a[data-h="'+anchor+'"]');if(c)c.classList.add('cur')}
+ if(t)t.scrollIntoView();else window.scrollTo(0,0);
+ document.body.classList.remove('open');
+ 
+ if(!nopush){try{history.pushState({p:pg.id,a:anchor||''},'')}catch(e){}}
+}
+window.btShow=show;
+pages.forEach(function(p,i){var pn=p.querySelector('.pn');if(!pn)return;
+ var a=i>0?ids[i-1]:'beranda',b=ids[i+1],l=function(id){var e=document.querySelector('a.m1[data-p="'+id+'"]');return e?e.textContent:''};
+ pn.innerHTML=(a?'<a href="#" data-go="'+a+'">&larr; '+l(a)+'</a>':'<span></span>')+(b?'<a href="#" data-go="'+b+'">'+l(b)+' &rarr;</a>':'<span></span>')});
+document.addEventListener('click',function(e){var a=e.target.closest?e.target.closest('[data-go]'):null;if(!a)return;e.preventDefault();var g=a.getAttribute('data-go').split('#');show(g[0],g[1])});
+document.getElementById('burger').onclick=function(){document.body.classList.toggle('open')};
+document.getElementById('scrim').onclick=function(){document.body.classList.remove('open')};
+window.addEventListener('popstate',function(e){var s=e.state;if(s&&s.p)show(s.p,s.a,true);else show('beranda','',true)});
+show('beranda','',true);
+})();
+(function(){
+function $(s,r){return (r||document).querySelector(s)}function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+function num(v){v=String(v==null?'':v).trim().replace(/−/g,'-').replace(/\s/g,'');if(v==='')return NaN;
+ if(/^-?\d+\/\d+$/.test(v)){var p=v.split('/');return parseFloat(p[0])/parseFloat(p[1])}
+ if(/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(v))v=v.replace(/\./g,'').replace(',','.');else v=v.replace(',','.');return /^-?\d*\.?\d+$/.test(v)?parseFloat(v):NaN}
+function fmt(x){if(Math.abs(x-Math.round(x))<1e-9)return String(Math.round(x));for(var d=2;d<=100;d++){var n=x*d;if(Math.abs(n-Math.round(n))<1e-9)return Math.round(n)+'/'+d}return String(Math.round(x*1e4)/1e4)}
+/* ---- stepper ---- */
+$$('.ex').forEach(function(ex){var ol=$('ol.stepper',ex);if(!ol)return;var li=$$('li',ol),ans=$('.ans',ex),i=1;
+ var ctl=document.createElement('div');ctl.className='stctl';ctl.innerHTML='<button type="button" class="nx"></button><button type="button" class="sec all">Tampilkan semua</button><button type="button" class="sec rs">Ulangi</button><span class="info"></span>';
+ ol.parentNode.insertBefore(ctl,ol);
+ function render(){li.forEach(function(e,k){e.classList.toggle('hid',k>=i)});if(ans)ans.style.display=i>=li.length?'':'none';
+  var nx=$('.nx',ctl);nx.textContent=i>=li.length?'Selesai ✔':'Langkah berikutnya ▸';nx.disabled=i>=li.length;nx.style.opacity=i>=li.length?.55:1;$('.info',ctl).textContent='Langkah '+Math.min(i,li.length)+' dari '+li.length}
+ $('.nx',ctl).onclick=function(){if(i<li.length){li[i].classList.add('new');i++;render()}};
+ $('.all',ctl).onclick=function(){i=li.length;render()};$('.rs',ctl).onclick=function(){i=1;render();li.forEach(function(e){e.classList.remove('new')})};render()});
+/* ---- cek tripel ---- */
+(function(){var b=$('#cbtn');if(!b)return;var E=[[1,1,1,6],[2,-1,1,3],[1,2,-1,2]];
+ b.onclick=function(){var x=num($('#cx').value),y=num($('#cy').value),z=num($('#cz').value),o=$('#cres');
+  if([x,y,z].some(isNaN)){o.innerHTML='<div class="msg err">Isi x, y, dan z dengan angka.</div>';return}
+  var all=true,h='';E.forEach(function(e,k){var v=e[0]*x+e[1]*y+e[2]*z,ok=Math.abs(v-e[3])<1e-9;if(!ok)all=false;
+   h+='<div>('+(k+1)+') '+e[0]+'('+fmt(x)+') + ('+e[1]+')('+fmt(y)+') + ('+e[2]+')('+fmt(z)+') = <b>'+fmt(v)+'</b> '+(ok?'✔ sama dengan '+e[3]:'✖ seharusnya '+e[3])+'</div>'});
+  h+=all?'<div class="msg good">✔ Tripel ('+fmt(x)+', '+fmt(y)+', '+fmt(z)+') memenuhi ketiga persamaan, jadi merupakan penyelesaian.</div>':'<div class="msg err">Tripel ini <b>bukan</b> penyelesaian karena ada persamaan yang tidak terpenuhi. Penyelesaian harus memenuhi <b>ketiganya</b>.</div>';o.innerHTML=h}})();
+/* ---- cek pemahaman ---- */
+(function(){var w=$('#pahami');if(!w)return;var Q=[
+ {t:'x + y + z = 4, &nbsp; 2x − y = 3, &nbsp; y + 3z = 5',a:true,e:'Ya. Tiga persamaan linear dengan tiga variabel yang sama. Koefisien yang nol (mis. z pada persamaan kedua) tidak masalah.'},
+ {t:'x + y = 4, &nbsp; 2x − y = 5',a:false,e:'Bukan. Ini SPLDV (dua persamaan, dua variabel).'},
+ {t:'xy + z = 4, &nbsp; x + y + z = 3, &nbsp; x − z = 1',a:false,e:'Bukan. Persamaan pertama memuat suku xy (perkalian variabel) sehingga tidak linear.'},
+ {t:'x + y + z = 6, &nbsp; 2x + 2y + 2z = 12, &nbsp; x − y + z = 2',a:true,e:'Ya. Bentuknya SPLTV. (Perhatikan: persamaan kedua kelipatan pertama, sehingga penyelesaiannya tak hingga banyak. Lihat Contoh 8.)'}];
+ Q.forEach(function(q,i){var d=document.createElement('div');d.className='it';d.innerHTML='<p style="margin:0 0 8px"><b>'+(i+1)+'.</b> '+q.t+'</p><button type="button" data-v="1">SPLTV</button><button type="button" data-v="0">Bukan SPLTV</button><div class="fb"></div>';
+  $$('button',d).forEach(function(bt){bt.onclick=function(){var ok=(bt.getAttribute('data-v')==='1')===q.a;$('.fb',d).innerHTML='<div class="msg '+(ok?'good':'err')+'">'+(ok?'✔ Benar. ':'✖ Belum tepat. ')+q.e+'</div>'}});w.appendChild(d)})})();
+/* ---- latihan ---- */
+var done={};
+function tally(prefix,total,id){var n=0;Object.keys(done).forEach(function(k){if(k.charAt(0)===prefix)n++});var t=$(id);if(t)t.innerHTML='Skor sesi: <b>'+n+'</b> dari '+total+' soal benar'}
+$$('.lat').forEach(function(L){var id=L.getAttribute('data-id'),ans=L.getAttribute('data-ans').split(',').map(Number),ins=$$('.ansrow input',L),fb=$('.fb',L),pm=$('.pemb',L),tries=0;
+ $('.chk',L).onclick=function(){var v=ins.map(function(e){return num(e.value)});if(v.some(isNaN)){fb.innerHTML='<div class="msg err">Isi semua kolom dengan angka (boleh negatif atau pecahan seperti 1/2).</div>';return}
+  tries++;var ok=0;ins.forEach(function(e,i){var c=Math.abs(v[i]-ans[i])<1e-6;e.classList.toggle('ok',c);e.classList.toggle('no',!c);if(c)ok++});
+  if(ok===3){fb.innerHTML='<div class="msg good">✔ Tepat! Ketiga nilai benar.'+(tries===1?' Langsung berhasil pada percobaan pertama.':'')+'</div>';L.classList.add('done');done[id]=1}
+  else{fb.innerHTML='<div class="msg err">'+ok+' dari 3 nilai benar (kolom merah belum tepat). Periksa lagi dengan memasukkan nilai ke <b>ketiga</b> persamaan.'+(tries>=2?' Buka pembahasan bila perlu.':'')+'</div>';delete done[id]}
+  tally('B',8,'#tallyB');tally('P',6,'#tallyP')};
+ $('.shw',L).onclick=function(){var h=pm.hasAttribute('hidden');if(h)pm.removeAttribute('hidden');else pm.setAttribute('hidden','');this.textContent=h?'Sembunyikan pembahasan':'Lihat pembahasan'}});
+/* ---- solver ---- */
+(function(){var go=$('#sgo');if(!go)return;var rows=$$('#srows .row');
+ function read(){var M=[];for(var r=0;r<3;r++){var ins=$$('input',rows[r]),m=ins.map(function(e){return num(e.value)});if(m.some(isNaN))return null;M.push(m)}return M}
+ function rank(M,n){var A=M.map(function(r){return r.slice(0,n)}),rk=0;for(var c=0;c<n&&rk<3;c++){var p=-1,best=1e-9;for(var r=rk;r<3;r++)if(Math.abs(A[r][c])>best){best=Math.abs(A[r][c]);p=r}if(p<0)continue;var t=A[rk];A[rk]=A[p];A[p]=t;for(var r2=rk+1;r2<3;r2++){var f=A[r2][c]/A[rk][c];for(var k=c;k<n;k++)A[r2][k]-=f*A[rk][k]}rk++}return rk}
+ function det(a){return a[0][0]*(a[1][1]*a[2][2]-a[1][2]*a[2][1])-a[0][1]*(a[1][0]*a[2][2]-a[1][2]*a[2][0])+a[0][2]*(a[1][0]*a[2][1]-a[1][1]*a[2][0])}
+ go.onclick=function(){var M=read(),o=$('#sout');if(!M){o.innerHTML='<div class="msg err">Isi semua 12 kolom dengan angka.</div>';return}
+  var C=M.map(function(r){return r.slice(0,3)}),r1=rank(M,3),r2=rank(M,4);
+  if(r1<r2){o.innerHTML='<div class="msg err"><b>Tidak ada penyelesaian.</b> Ada persamaan yang saling bertentangan (setelah eliminasi muncul pernyataan salah seperti 0 = k, k ≠ 0). HP = ∅.</div>';return}
+  if(r1<3){o.innerHTML='<div class="msg warn"><b>Tak hingga banyak penyelesaian.</b> Ada persamaan yang tidak memberi informasi baru (setelah eliminasi muncul 0 = 0), sehingga tersisa variabel bebas.</div>';return}
+  var D=det(C),cols=[0,1,2].map(function(c){return det(C.map(function(r,i){var q=r.slice(0,3);q[c]=M[i][3];return q}))}),sol=cols.map(function(d){return d/D});
+  var h='<div class="msg good"><b>Tepat satu penyelesaian:</b> HP = {('+sol.map(fmt).join(', ')+')}</div><p><b>Pemeriksaan substitusi:</b></p>';
+  M.forEach(function(r,i){var v=r[0]*sol[0]+r[1]*sol[1]+r[2]*sol[2];h+='<div>('+(i+1)+') '+r[0]+'('+fmt(sol[0])+') + '+r[1]+'('+fmt(sol[1])+') + '+r[2]+'('+fmt(sol[2])+') = '+fmt(v)+' '+(Math.abs(v-r[3])<1e-7?'✔':'✖')+' (konstanta '+r[3]+')</div>'});
+  h+='<p style="margin-top:8px"><small>Alat ini memakai determinan (aturan Cramer) sebagai pengecek, bukan sebagai pengganti metode eliminasi dan substitusi yang dipelajari.</small></p>';o.innerHTML=h};
+ var EX={1:[[1,2,1,3],[2,-1,1,9],[3,1,-2,4]],2:[[1,1,1,6],[2,2,2,12],[1,-1,1,2]],3:[[1,1,1,6],[2,2,2,10],[1,-1,0,1]]};
+ $$('.solver [data-ex]').forEach(function(b){b.onclick=function(){var M=EX[b.getAttribute('data-ex')];rows.forEach(function(r,i){$$('input',r).forEach(function(e,j){e.value=M[i][j]})});go.click()}})})();
+})();
+</script></body></html>
